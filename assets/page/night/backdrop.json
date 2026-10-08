@@ -1,0 +1,31 @@
+{
+ "w": 844,
+ "h": 390,
+ "dpr": 2,
+ "ppu": 31.2,
+ "rs": 1.5,
+ "stavesTW": 2100,
+ "stavesTH": 315,
+ "emblemFront": false,
+ "clouds": false,
+ "bands": [
+  {
+   "tw": 2304,
+   "th": 421,
+   "skirt": 234,
+   "fx": 0.1,
+   "fy": 0.12,
+   "lift": 1.3,
+   "base": "rgb(33,41,68)"
+  },
+  {
+   "tw": 2304,
+   "th": 374,
+   "skirt": 234,
+   "fx": 0.26,
+   "fy": 0.28,
+   "lift": -0.4,
+   "base": "rgb(59,75,101)"
+  }
+ ]
+}
