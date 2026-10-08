@@ -23,6 +23,11 @@ window/size/window_height_override=780
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=4
+window/vsync/vsync_mode=1
+
+[physics]
+
+common/physics_ticks_per_second=60
 
 [rendering]
 

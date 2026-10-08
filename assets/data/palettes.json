@@ -1,0 +1,632 @@
+{
+ "dawn": {
+  "id": "dawn",
+  "skyTop": "#6f9fd8",
+  "skyMid": "#f2c9a0",
+  "skyHorizon": "#ffe6bd",
+  "skyBottom": "#d9b48f",
+  "sun": "#ffe2b0",
+  "sunIntensity": 2.6,
+  "sunDir": [
+   -0.55,
+   0.62,
+   -0.55
+  ],
+  "hemiSky": "#bcd4ff",
+  "hemiGround": "#a07a50",
+  "fog": "#f3d9b8",
+  "haze": 1,
+  "mats": {
+   "stone": {
+    "color": "#cdbb9c",
+    "color2": "#a8946f",
+    "rough": 0.86,
+    "metal": 0
+   },
+   "brick": {
+    "color": "#b86f4f",
+    "color2": "#8c4b33",
+    "rough": 0.9,
+    "metal": 0
+   },
+   "wood": {
+    "color": "#7a4f30",
+    "color2": "#5a3720",
+    "rough": 0.7,
+    "metal": 0
+   },
+   "brass": {
+    "color": "#c9a04a",
+    "color2": "#8a6a2a",
+    "rough": 0.32,
+    "metal": 1
+   },
+   "dark": {
+    "color": "#3b3340",
+    "color2": "#2a2430",
+    "rough": 0.8,
+    "metal": 0
+   },
+   "crystal": {
+    "color": "#9fd6ff",
+    "color2": "#5a8fd6",
+    "rough": 0.15,
+    "metal": 0,
+    "emissive": "#4fa8ff"
+   },
+   "leaf": {
+    "color": "#4f7a3a",
+    "color2": "#35592a",
+    "rough": 0.95,
+    "metal": 0
+   },
+   "thorn": {
+    "color": "#2b1c22",
+    "color2": "#9a1f2c",
+    "rough": 0.6,
+    "metal": 0,
+    "emissive": "#c4283a"
+   },
+   "marble": {
+    "color": "#ece6dc",
+    "color2": "#b9ada0",
+    "rough": 0.35,
+    "metal": 0
+   }
+  },
+  "top": "grass",
+  "topColor": "#7fae4f",
+  "water": null,
+  "ambient": "motes",
+  "glow": "#ffcf6b",
+  "paper": "#f1e6cc",
+  "paperShade": "#dccaa5",
+  "ink": "#2b211c",
+  "inkFar": "#8a7860",
+  "rubric": "#b2362b",
+  "gold": "#c9982f",
+  "washNear": "#5b4a3a",
+  "washFar": "#cbb99a",
+  "inverted": false
+ },
+ "lake": {
+  "id": "lake",
+  "skyTop": "#5d7f99",
+  "skyMid": "#a9c3c9",
+  "skyHorizon": "#dbe7e2",
+  "skyBottom": "#4f7680",
+  "sun": "#e8f2ff",
+  "sunIntensity": 1.9,
+  "sunDir": [
+   0.4,
+   0.75,
+   -0.5
+  ],
+  "hemiSky": "#c9e0ea",
+  "hemiGround": "#46605a",
+  "fog": "#c8d9d6",
+  "haze": 1.5,
+  "mats": {
+   "stone": {
+    "color": "#9fb0ad",
+    "color2": "#71837f",
+    "rough": 0.86,
+    "metal": 0
+   },
+   "brick": {
+    "color": "#b86f4f",
+    "color2": "#8c4b33",
+    "rough": 0.9,
+    "metal": 0
+   },
+   "wood": {
+    "color": "#6a5745",
+    "color2": "#4a3b2e",
+    "rough": 0.7,
+    "metal": 0
+   },
+   "brass": {
+    "color": "#c9a04a",
+    "color2": "#8a6a2a",
+    "rough": 0.32,
+    "metal": 1
+   },
+   "dark": {
+    "color": "#3b3340",
+    "color2": "#2a2430",
+    "rough": 0.8,
+    "metal": 0
+   },
+   "crystal": {
+    "color": "#9fd6ff",
+    "color2": "#5a8fd6",
+    "rough": 0.15,
+    "metal": 0,
+    "emissive": "#4fa8ff"
+   },
+   "leaf": {
+    "color": "#4e7f69",
+    "color2": "#355b4b",
+    "rough": 0.95,
+    "metal": 0
+   },
+   "thorn": {
+    "color": "#2b1c22",
+    "color2": "#9a1f2c",
+    "rough": 0.6,
+    "metal": 0,
+    "emissive": "#c4283a"
+   },
+   "marble": {
+    "color": "#ece6dc",
+    "color2": "#b9ada0",
+    "rough": 0.35,
+    "metal": 0
+   }
+  },
+  "top": "moss",
+  "topColor": "#6f9c74",
+  "water": "#3f6f7a",
+  "ambient": "mist",
+  "glow": "#bfe8ff",
+  "paper": "#e4e8e2",
+  "paperShade": "#c5cec9",
+  "ink": "#1f2d3a",
+  "inkFar": "#7b8e98",
+  "rubric": "#a3392f",
+  "gold": "#b38f3a",
+  "washNear": "#3d5463",
+  "washFar": "#b9c7c6",
+  "inverted": false
+ },
+ "autumn": {
+  "id": "autumn",
+  "skyTop": "#5d6fa6",
+  "skyMid": "#e3a26b",
+  "skyHorizon": "#ffd08a",
+  "skyBottom": "#9c5a3c",
+  "sun": "#ffc27a",
+  "sunIntensity": 2.8,
+  "sunDir": [
+   0.6,
+   0.45,
+   -0.5
+  ],
+  "hemiSky": "#ffd9b0",
+  "hemiGround": "#7a4a2a",
+  "fog": "#efc08e",
+  "haze": 1.1,
+  "mats": {
+   "stone": {
+    "color": "#c9a27a",
+    "color2": "#9a7552",
+    "rough": 0.86,
+    "metal": 0
+   },
+   "brick": {
+    "color": "#a55a3a",
+    "color2": "#7a3a24",
+    "rough": 0.9,
+    "metal": 0
+   },
+   "wood": {
+    "color": "#7a4f30",
+    "color2": "#5a3720",
+    "rough": 0.7,
+    "metal": 0
+   },
+   "brass": {
+    "color": "#c9a04a",
+    "color2": "#8a6a2a",
+    "rough": 0.32,
+    "metal": 1
+   },
+   "dark": {
+    "color": "#3b3340",
+    "color2": "#2a2430",
+    "rough": 0.8,
+    "metal": 0
+   },
+   "crystal": {
+    "color": "#9fd6ff",
+    "color2": "#5a8fd6",
+    "rough": 0.15,
+    "metal": 0,
+    "emissive": "#4fa8ff"
+   },
+   "leaf": {
+    "color": "#c46a2c",
+    "color2": "#8f3f1c",
+    "rough": 0.95,
+    "metal": 0
+   },
+   "thorn": {
+    "color": "#2b1c22",
+    "color2": "#9a1f2c",
+    "rough": 0.6,
+    "metal": 0,
+    "emissive": "#c4283a"
+   },
+   "marble": {
+    "color": "#ece6dc",
+    "color2": "#b9ada0",
+    "rough": 0.35,
+    "metal": 0
+   }
+  },
+  "top": "leaves",
+  "topColor": "#d4782f",
+  "water": null,
+  "ambient": "leaves",
+  "glow": "#ffb35c",
+  "paper": "#eedcb8",
+  "paperShade": "#d6bb8c",
+  "ink": "#3a2316",
+  "inkFar": "#a0805e",
+  "rubric": "#b3402a",
+  "gold": "#c08a2a",
+  "washNear": "#6b4128",
+  "washFar": "#d2b48a",
+  "inverted": false
+ },
+ "night": {
+  "id": "night",
+  "skyTop": "#070b1f",
+  "skyMid": "#18244d",
+  "skyHorizon": "#33427a",
+  "skyBottom": "#060814",
+  "sun": "#a9c4ff",
+  "sunIntensity": 0.9,
+  "sunDir": [
+   -0.35,
+   0.7,
+   -0.6
+  ],
+  "hemiSky": "#3a4c8a",
+  "hemiGround": "#101425",
+  "fog": "#1a2448",
+  "haze": 1.2,
+  "mats": {
+   "stone": {
+    "color": "#5d6788",
+    "color2": "#3f4766",
+    "rough": 0.86,
+    "metal": 0
+   },
+   "brick": {
+    "color": "#b86f4f",
+    "color2": "#8c4b33",
+    "rough": 0.9,
+    "metal": 0
+   },
+   "wood": {
+    "color": "#4a3a3a",
+    "color2": "#2e2424",
+    "rough": 0.7,
+    "metal": 0
+   },
+   "brass": {
+    "color": "#c9a04a",
+    "color2": "#8a6a2a",
+    "rough": 0.32,
+    "metal": 1
+   },
+   "dark": {
+    "color": "#3b3340",
+    "color2": "#2a2430",
+    "rough": 0.8,
+    "metal": 0
+   },
+   "crystal": {
+    "color": "#9fd6ff",
+    "color2": "#5a8fd6",
+    "rough": 0.15,
+    "metal": 0,
+    "emissive": "#4fa8ff"
+   },
+   "leaf": {
+    "color": "#2f4d56",
+    "color2": "#1e353d",
+    "rough": 0.95,
+    "metal": 0
+   },
+   "thorn": {
+    "color": "#2b1c22",
+    "color2": "#9a1f2c",
+    "rough": 0.6,
+    "metal": 0,
+    "emissive": "#c4283a"
+   },
+   "marble": {
+    "color": "#b9c2dd",
+    "color2": "#7e88a8",
+    "rough": 0.35,
+    "metal": 0
+   }
+  },
+  "top": "moss",
+  "topColor": "#3f6a6a",
+  "water": "#0d1733",
+  "ambient": "fireflies",
+  "glow": "#9fd0ff",
+  "paper": "#151b33",
+  "paperShade": "#0c1024",
+  "ink": "#e7e3d4",
+  "inkFar": "#7a83a6",
+  "rubric": "#e06a5a",
+  "gold": "#e2c46a",
+  "washNear": "#c9cbe0",
+  "washFar": "#3b4568",
+  "inverted": true
+ },
+ "clock": {
+  "id": "clock",
+  "skyTop": "#2a1a14",
+  "skyMid": "#6b3b22",
+  "skyHorizon": "#c47a3a",
+  "skyBottom": "#1a0f0b",
+  "sun": "#ffb76b",
+  "sunIntensity": 2.2,
+  "sunDir": [
+   0.3,
+   0.8,
+   -0.45
+  ],
+  "hemiSky": "#ffcf9a",
+  "hemiGround": "#3a2418",
+  "fog": "#7a4a2c",
+  "haze": 1.3,
+  "mats": {
+   "stone": {
+    "color": "#8a6a52",
+    "color2": "#5e4636",
+    "rough": 0.86,
+    "metal": 0
+   },
+   "brick": {
+    "color": "#b86f4f",
+    "color2": "#8c4b33",
+    "rough": 0.9,
+    "metal": 0
+   },
+   "wood": {
+    "color": "#5a3a26",
+    "color2": "#3a2416",
+    "rough": 0.7,
+    "metal": 0
+   },
+   "brass": {
+    "color": "#d4a54e",
+    "color2": "#8a6428",
+    "rough": 0.32,
+    "metal": 1
+   },
+   "dark": {
+    "color": "#2e2622",
+    "color2": "#1c1614",
+    "rough": 0.8,
+    "metal": 0
+   },
+   "crystal": {
+    "color": "#9fd6ff",
+    "color2": "#5a8fd6",
+    "rough": 0.15,
+    "metal": 0,
+    "emissive": "#4fa8ff"
+   },
+   "leaf": {
+    "color": "#4f7a3a",
+    "color2": "#35592a",
+    "rough": 0.95,
+    "metal": 0
+   },
+   "thorn": {
+    "color": "#2b1c22",
+    "color2": "#9a1f2c",
+    "rough": 0.6,
+    "metal": 0,
+    "emissive": "#c4283a"
+   },
+   "marble": {
+    "color": "#ece6dc",
+    "color2": "#b9ada0",
+    "rough": 0.35,
+    "metal": 0
+   }
+  },
+  "top": "none",
+  "topColor": "#7a5a3a",
+  "water": null,
+  "ambient": "sparks",
+  "glow": "#ffbf5e",
+  "paper": "#ecd9ae",
+  "paperShade": "#cdb27a",
+  "ink": "#2e1d12",
+  "inkFar": "#94744e",
+  "rubric": "#a8321f",
+  "gold": "#b8862a",
+  "washNear": "#5a3a22",
+  "washFar": "#cfb07a",
+  "inverted": false
+ },
+ "finale": {
+  "id": "finale",
+  "skyTop": "#1d0f2a",
+  "skyMid": "#7a2a3a",
+  "skyHorizon": "#ff9a5a",
+  "skyBottom": "#2a0f18",
+  "sun": "#ffcf8a",
+  "sunIntensity": 3,
+  "sunDir": [
+   -0.2,
+   0.35,
+   -0.9
+  ],
+  "hemiSky": "#ffb08a",
+  "hemiGround": "#4a1a24",
+  "fog": "#8a3a40",
+  "haze": 1,
+  "mats": {
+   "stone": {
+    "color": "#e8dccb",
+    "color2": "#b8a68e",
+    "rough": 0.86,
+    "metal": 0
+   },
+   "brick": {
+    "color": "#b86f4f",
+    "color2": "#8c4b33",
+    "rough": 0.9,
+    "metal": 0
+   },
+   "wood": {
+    "color": "#7a4f30",
+    "color2": "#5a3720",
+    "rough": 0.7,
+    "metal": 0
+   },
+   "brass": {
+    "color": "#e0b25a",
+    "color2": "#9a7430",
+    "rough": 0.32,
+    "metal": 1
+   },
+   "dark": {
+    "color": "#5a1622",
+    "color2": "#3a0c16",
+    "rough": 0.8,
+    "metal": 0
+   },
+   "crystal": {
+    "color": "#9fd6ff",
+    "color2": "#5a8fd6",
+    "rough": 0.15,
+    "metal": 0,
+    "emissive": "#4fa8ff"
+   },
+   "leaf": {
+    "color": "#4f7a3a",
+    "color2": "#35592a",
+    "rough": 0.95,
+    "metal": 0
+   },
+   "thorn": {
+    "color": "#2b1c22",
+    "color2": "#9a1f2c",
+    "rough": 0.6,
+    "metal": 0,
+    "emissive": "#c4283a"
+   },
+   "marble": {
+    "color": "#f3ede4",
+    "color2": "#c8b8a4",
+    "rough": 0.35,
+    "metal": 0
+   }
+  },
+  "top": "carpet",
+  "topColor": "#9a1f30",
+  "water": null,
+  "ambient": "embers",
+  "glow": "#ffd27a",
+  "paper": "#f4ecdc",
+  "paperShade": "#dccdb0",
+  "ink": "#1e1412",
+  "inkFar": "#8c7a6a",
+  "rubric": "#a3182a",
+  "gold": "#d1a03a",
+  "washNear": "#4a2a2a",
+  "washFar": "#d8c4a8",
+  "inverted": false
+ },
+ "title": {
+  "id": "title",
+  "skyTop": "#141a3a",
+  "skyMid": "#5a3a6a",
+  "skyHorizon": "#f0a070",
+  "skyBottom": "#1a1222",
+  "sun": "#ffc890",
+  "sunIntensity": 2.2,
+  "sunDir": [
+   -0.5,
+   0.4,
+   -0.7
+  ],
+  "hemiSky": "#c0a0d0",
+  "hemiGround": "#3a2a30",
+  "fog": "#7a5a78",
+  "haze": 1,
+  "mats": {
+   "stone": {
+    "color": "#cdbb9c",
+    "color2": "#a8946f",
+    "rough": 0.86,
+    "metal": 0
+   },
+   "brick": {
+    "color": "#b86f4f",
+    "color2": "#8c4b33",
+    "rough": 0.9,
+    "metal": 0
+   },
+   "wood": {
+    "color": "#7a4f30",
+    "color2": "#5a3720",
+    "rough": 0.7,
+    "metal": 0
+   },
+   "brass": {
+    "color": "#c9a04a",
+    "color2": "#8a6a2a",
+    "rough": 0.32,
+    "metal": 1
+   },
+   "dark": {
+    "color": "#3b3340",
+    "color2": "#2a2430",
+    "rough": 0.8,
+    "metal": 0
+   },
+   "crystal": {
+    "color": "#9fd6ff",
+    "color2": "#5a8fd6",
+    "rough": 0.15,
+    "metal": 0,
+    "emissive": "#4fa8ff"
+   },
+   "leaf": {
+    "color": "#4f7a3a",
+    "color2": "#35592a",
+    "rough": 0.95,
+    "metal": 0
+   },
+   "thorn": {
+    "color": "#2b1c22",
+    "color2": "#9a1f2c",
+    "rough": 0.6,
+    "metal": 0,
+    "emissive": "#c4283a"
+   },
+   "marble": {
+    "color": "#ece6dc",
+    "color2": "#b9ada0",
+    "rough": 0.35,
+    "metal": 0
+   }
+  },
+  "top": "grass",
+  "topColor": "#6f9a4f",
+  "water": null,
+  "ambient": "motes",
+  "glow": "#ffcf6b",
+  "paper": "#f1e6cc",
+  "paperShade": "#dccaa5",
+  "ink": "#2b211c",
+  "inkFar": "#8a7860",
+  "rubric": "#b2362b",
+  "gold": "#c9982f",
+  "washNear": "#5b4a3a",
+  "washFar": "#cbb99a",
+  "inverted": false
+ }
+}
