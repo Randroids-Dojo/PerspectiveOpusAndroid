@@ -73,12 +73,17 @@ func is_shown() -> bool:
 	return _shown
 
 
+## Hints wait until this time (msec) so they never sit on top of the movement's title card.
+var quiet_until := 0
+
+
 func update(game: Sim, device: String) -> void:
 	_mode = game.mode
 	_device = device
 	_play_time = game.play_time
 	var id := ""
-	if game.active_sign != null and not game.finished and game.player.dead <= 0.0:
+	var quiet := Time.get_ticks_msec() < quiet_until
+	if game.active_sign != null and not quiet and not game.finished and game.player.dead <= 0.0:
 		id = String(game.active_sign.hint)
 	if id != _hint_id or device != _hint_device:
 		_hint_id = id

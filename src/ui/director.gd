@@ -255,6 +255,7 @@ func _begin_play(index: int, mode: String) -> void:
 	_audio("set_restored", [0, game.level.notes.size()])
 	_play_music()
 	intro.show_card(infos[index])
+	hud.quiet_until = Time.get_ticks_msec() + 3600
 	_fade_in()
 	level_started.emit(index)
 
