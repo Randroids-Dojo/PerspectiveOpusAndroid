@@ -45,6 +45,9 @@ var mode := "flow"
 var speed := 1.0
 var _passes := 0
 var _fails := 0
+var _profile := false
+var _last_frame_us := 0
+var _frame_groups := {}
 
 
 ## Called by the director before it connects to the input router.
@@ -56,6 +59,16 @@ func prepare(a: App, d: Director) -> void:
 			mode = arg.substr(11)
 		elif arg.begins_with("--speed="):
 			speed = float(arg.substr(8))
+		elif arg == "--profile":
+			_profile = true
+	# The exported launcher strips intent arguments. A debug-only app-private file
+	# lets wireless ADB select a campaign run without changing the shipping game.
+	if OS.has_feature("selftest") and FileAccess.file_exists("user://selftest_config.json"):
+		var config = JSON.parse_string(FileAccess.get_file_as_string("user://selftest_config.json"))
+		if config is Dictionary:
+			mode = "full" if config.get("mode", "flow") == "full" else "flow"
+			speed = clampf(float(config.get("speed", 1.0)), 0.25, 8.0)
+			_profile = bool(config.get("profile", false))
 	var old: InputRouter = app.input
 	var rep := ReplayInput.new()
 	var idx := old.get_index()
@@ -110,10 +123,71 @@ func _run() -> void:
 	Engine.time_scale = 1.0
 	_log("%d passed, %d failed" % [_passes, _fails])
 	_log("PASS" if _fails == 0 else "FAIL")
+	_write_report()
 	app.paused = true
 	if app.audio and app.audio.has_method("prepare_quit"):
 		await app.audio.prepare_quit()
 	get_tree().quit(0 if _fails == 0 else 1)
+
+
+func _process(_delta: float) -> void:
+	if not _profile or app.game == null:
+		return
+	var now := Time.get_ticks_usec()
+	if _last_frame_us == 0:
+		_last_frame_us = now
+		return
+	var ms := float(now - _last_frame_us) / 1000.0
+	_last_frame_us = now
+	var world: String = app.game.mode
+	if app.view.wipe > 0.01 and app.view.wipe < 0.99:
+		world = "switch"
+	var key := "%s/%s/%s/%s" % [app.level_id, director.state, world, app.quality]
+	if not _frame_groups.has(key):
+		_frame_groups[key] = {"times": [], "page_ms": 0.0, "page_max_ms": 0.0, "scale_min": 1.0}
+	var group: Dictionary = _frame_groups[key]
+	group.times.append(ms)
+	if app.view.wipe < 1.0:
+		var page_ms: float = app.page.stats.ms
+		group.page_ms += page_ms
+		group.page_max_ms = maxf(group.page_max_ms, page_ms)
+	group.scale_min = minf(group.scale_min, app.stage.stats().scale)
+	if group.times.size() % 300 == 0:
+		_log("FRAME %s fps %.1f page %.2f ms stage scale %.2f" % [key, Engine.get_frames_per_second(), app.page.stats.avg, app.stage.stats().scale])
+
+
+func _write_report() -> void:
+	var groups := {}
+	for key in _frame_groups:
+		var group: Dictionary = _frame_groups[key]
+		var times: Array = group.times
+		times.sort()
+		var total := 0.0
+		var slow := 0
+		for ms in times:
+			total += ms
+			if ms > 50.0:
+				slow += 1
+		var n := times.size()
+		groups[key] = {
+			"frames": n, "fps": 1000.0 * n / total,
+			"p50_ms": times[n / 2], "p95_ms": times[mini(n - 1, int(n * 0.95))],
+			"max_ms": times.back(), "over_50_ms": slow,
+			"page_avg_ms": group.page_ms / n, "page_max_ms": group.page_max_ms,
+			"stage_scale_min": group.scale_min,
+		}
+	var report := {
+		"mode": mode, "speed": speed, "passes": _passes, "fails": _fails,
+		"renderer": RenderingServer.get_current_rendering_method(),
+		"adapter": RenderingServer.get_video_adapter_name(),
+		"display": DisplayServer.get_name(), "window": [app.get_window().size.x, app.get_window().size.y],
+		"audio": app.audio.stats() if app.audio.has_method("stats") else {},
+		"frames": groups,
+	}
+	var file := FileAccess.open("user://selftest_report.json", FileAccess.WRITE)
+	file.store_string(JSON.stringify(report, "  "))
+	file.close()
+	_log("REPORT user://selftest_report.json")
 
 
 # ---------------------------------------------------------------- synthetic input

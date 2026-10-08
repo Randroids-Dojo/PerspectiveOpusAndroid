@@ -16,6 +16,7 @@ Music uses synchronized Score and Stage arrangements, restored-note layers, equa
 | --- | --- |
 | Simulation parity | All six web recordings finish with seven notes and zero deaths; maximum position drift below 3e-14 |
 | Native input and UI flow | 42 checks pass, including focus recovery, independent touch contacts, held triggers, pause/back and pickup persistence |
+| Pixel 8 Pro exported flow | 42 checks pass at normal speed on Android 17, Vulkan 1.4.343, Mali-G715 and Forward Mobile |
 | Native full campaign | 25 checks pass; six movements, 42 saved notes, zero deaths, ending and return to title |
 | Native shutdown | Flow, campaign and windowed screenshot exit without script errors or leaked resources |
 | Native presentation | All palettes and both switch directions compared against the web build; night Score with touch HUD inspected after integration |
@@ -38,7 +39,18 @@ Evidence from this run:
 
 ## Android check limits
 
-The connected Pixel 8 Pro was asleep and locked. Phone frame time, first-use shader hitches and physical listening are unverified. Desktop performance measurements are not phone estimates. The Score's initial visible chunk paint takes about 90 to 125 ms on this Mac; the Stage and page both use quality scaling.
+The Pixel 8 Pro connected through wireless ADB and ran the exported self-test on its actual Mobile renderer. All 42 flow checks passed at normal speed in 26.9 seconds, with no script errors, fatal exceptions or shutdown leaks in the captured process log. These checks inject keyboard, controller, multitouch and back events through the native engine. They do not establish physical Bluetooth controller behavior or OS-level touch/back handling.
+
+The signed regular release was installed in the primary profile and its title inspected at 2244x1008. The device changed to another app before the manual gameplay check. That interrupted screenshot and playback recording were discarded. Full phone campaign, frame timings, cold shader hitches, OS-level touch/back and physical listening remain pending until the phone is available for an uninterrupted run. Desktop performance measurements are not phone estimates. The Score's initial visible chunk paint takes about 90 to 125 ms on this Mac; the Stage and page both use quality scaling.
+
+The test-only profiler records frame intervals by movement, world, director state and quality, along with Page CPU cost, Stage resolution scale and audio diagnostics. One accelerated desktop profiling run emitted an ObjectDB shutdown warning; its verbose follow-up completed all 25 checks and exited cleanly. The exported phone flow also exited cleanly.
+
+Wireless evidence:
+
+- `/tmp/opus-pixel-flow.log`
+- `/tmp/opus-pixel-release-title.png`
+- `/tmp/opus-device-profile-harness.log`
+- `/tmp/opus-profile-full-verbose.log`
 
 The Android emulator launched the exported Mobile renderer but hung at a Vulkan `QueuePresentKHR` failure before the title or flow checks. Both software Vulkan and MoltenVK were tried. A related Godot emulator issue is recorded at https://github.com/godotengine/godot/issues/105598. The test package was removed, the temporary storage threshold restored, and the emulator stopped. The production build keeps the required Mobile renderer.
 
@@ -50,10 +62,22 @@ $GODOT --headless --path . --import
 $GODOT --headless --path . --script tests/parity.gd
 $GODOT --headless --path . -- --selftest=flow
 $GODOT --headless --path . -- --selftest=full --speed=8
+$GODOT --headless --path . -- --selftest=full --speed=8 --profile
 $GODOT --headless --path . --script src/audio/dev/check.gd
 $GODOT --path . -- --level=nocturne --mode=2d --device=touch --shot=/tmp/opus-night.png --frames=120
 $GODOT --headless --path . --export-debug "Android Selftest" build/PerspectiveOpus-selftest.apk
 python3 tools/build_android.py
 ```
 
-The Android Selftest preset has a separate package ID and automatically runs the flow checks. It does not touch the regular game's save. `build_android.py` reads the existing upload key and password file from `~/.config/perspectiveopus/`, passes them to Godot through its signing environment variables, and builds the APK and AAB in sequence. Release outputs belong in `build/` and stay out of Git. Keystores and signing credentials also stay out of Git.
+The Android Selftest preset has a separate package ID and includes the six recorded solutions. It automatically runs the flow checks unless its app-private `selftest_config.json` selects the full campaign. The shipping game ignores this file. The self-test does not touch the regular game's save.
+
+On an awake, unlocked and available device, connect wireless ADB using its current debugging address, then run:
+
+```sh
+~/Library/Android/sdk/platform-tools/adb connect <wireless-address:port>
+python3 tools/check_android.py --serial <wireless-address:port> --install --mode full --profile
+```
+
+The runner installs the existing self-test APK, writes its app-private configuration and collects a process log and JSON receipt. It stops its own QA package if the device foreground changes. Full replay runs at normal speed by default, with no teleporting. Its quality stays at the phone's initial medium tier while the Stage resolution governor remains active; the shipping automatic tier governor is disabled during self-tests. Record cold-load outliers separately when interpreting the frame report.
+
+`build_android.py` reads the existing upload key and password file from `~/.config/perspectiveopus/`, passes them to Godot through its signing environment variables, and builds the APK and AAB in sequence. Release outputs belong in `build/` and stay out of Git. Keystores and signing credentials also stay out of Git.
