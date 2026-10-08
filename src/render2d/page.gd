@@ -57,7 +57,7 @@ func _mark(name: String) -> void:
 	_sec[name] = _sec.get(name, 0.0) * 0.95 + (t - _sec_t) / 1000.0 * 0.05
 	_sec_t = t
 ## Frame cost in milliseconds (for measurement).
-var stats := {"ms": 0.0, "avg": 0.0, "max": 0.0, "paint": 0.0, "frames": 0, "chunks": 0, "canvases": 0}
+var stats := {"ms": 0.0, "avg": 0.0, "max": 0.0, "paint": 0.0, "frames": 0, "chunks": 0, "canvases": 0, "prewarm_ms": 0.0}
 
 
 func _ready() -> void:
@@ -152,6 +152,38 @@ func set_world_visible(v: bool) -> void:
 	_shown = v
 	visible = v
 	_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS if v else SubViewport.UPDATE_DISABLED
+
+
+## Prepare the Score under the level fade, then maintain its terrain while on the Stage.
+## This uses the same chunk paintings as render(), without drawing the hidden page.
+func prewarm(game: Sim, view: View, now: float, quality: String, immediate := false) -> void:
+	var t0 := Time.get_ticks_usec()
+	if game != _game or _env == null:
+		return
+	if view.dpr != _dpr or roundi(view.w * view.dpr) != _W or roundi(view.h * view.dpr) != _H:
+		resize(view)
+	_env.now = now
+	_env.time = game.time
+	_env.quality = quality
+	_env.cache.next_frame()
+	var k := view.ppu * _dpr
+	if absf(k - _chunk_k) > 1e-6:
+		_chunks.clear()
+		_chunk_k = k
+		_chunk_px = _dpr * PageEnv.stroke_scale(view.ppu)
+	var ox := roundf(_W / 2.0 - view.c2.x * k)
+	var oy := roundf(_H / 2.0 + view.c2.y * k)
+	var i0 := floori(-ox / CHUNK)
+	var i1 := floori((_W - ox) / CHUNK)
+	var j0 := floori(-oy / CHUNK)
+	var j1 := floori((_H - oy) / CHUNK)
+	var vis := (i1 - i0 + 1) * (j1 - j0 + 1)
+	var ring := (i1 - i0 + 3) * (j1 - j0 + 3) - vis
+	var variants := 1 if quality == "low" or view.reduce_motion else 3
+	_chunks.variants = variants
+	_chunks.budget = ceili(vis * variants + ring + 10)
+	_chunks.prepare(i0, i1, j0, j1, 1.0, 1, immediate)
+	stats.prewarm_ms = (Time.get_ticks_usec() - t0) / 1000.0
 
 
 func render(game: Sim, view: View, frame: Dictionary) -> void:

@@ -77,6 +77,7 @@ func start_level(id: String, mode: String, palette_override: String = "") -> Sim
 	stage.load_level(game, pal)
 	page.load_level(game, pal)
 	view.snap(game)
+	page.prewarm(game, view, _now, quality, true)
 	_acc = 0.0
 	return game
 
@@ -140,6 +141,8 @@ func _process(delta: float) -> void:
 			stage.render(game, view, frame)
 		if show_page:
 			page.render(game, view, frame)
+		elif not paused:
+			page.prewarm(game, view, _now, quality)
 	frame_done.emit(dt)
 	if _args.has("shot") and _frames == int(_args.get("frames", "90")):
 		await RenderingServer.frame_post_draw

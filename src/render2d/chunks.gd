@@ -45,6 +45,7 @@ var _map := {}
 var _pool: Array[SubViewport] = []
 var _frame := 0
 var _to_clear: Array[PagePainter] = []
+var _rendered_painters: Array[PagePainter] = []
 ## Optional paintings in progress, oldest first.
 var _jobs: Array = []
 
@@ -53,6 +54,7 @@ func _init(host_: Node, begin: Callable, probe: Callable) -> void:
 	host = host_
 	begin_fn = begin
 	probe_fn = probe
+	RenderingServer.frame_post_draw.connect(_on_frame_drawn)
 
 
 func clear() -> void:
@@ -66,6 +68,8 @@ func clear() -> void:
 				_release(c.vps[v])
 				c.vps[v] = null
 	_map.clear()
+	_to_clear.clear()
+	_rendered_painters.clear()
 	live = 0
 	boil_ready = false
 
@@ -80,7 +84,14 @@ func purge() -> void:
 
 ## Frees everything (the page is leaving the tree).
 func dispose() -> void:
+	RenderingServer.frame_post_draw.disconnect(_on_frame_drawn)
 	purge()
+	_to_clear.clear()
+	_rendered_painters.clear()
+
+
+func _on_frame_drawn() -> void:
+	_rendered_painters.append_array(_to_clear)
 	_to_clear.clear()
 
 
@@ -193,14 +204,16 @@ func _next_task(vis: Array[Chunk], want_variants: int) -> Array:
 
 
 ## Makes sure the visible chunks exist, then spends up to `idle_ms` on optional painting.
-func prepare(a0: int, a1: int, b0: int, b1: int, idle_ms: float, want_variants: int) -> void:
+## Hidden-page preparation queues missing chunks within that budget instead of blocking.
+func prepare(a0: int, a1: int, b0: int, b1: int, idle_ms: float, want_variants: int, required := true) -> void:
 	_frame += 1
 	paint_ms = 0.0
-	# Chunks painted last frame have been rendered: free their geometry.
-	for pt in _to_clear:
+	# Only clear geometry after the viewport has drawn it. Level preparation and the
+	# first normal render can both run before that first draw.
+	for pt in _rendered_painters:
 		pt.begin()
 		pt.end()
-	_to_clear.clear()
+	_rendered_painters.clear()
 	i0 = a0
 	i1 = a1
 	j0 = b0
@@ -214,7 +227,10 @@ func prepare(a0: int, a1: int, b0: int, b1: int, idle_ms: float, want_variants: 
 				continue
 			vis.append(c)
 			if c.vps[0] == null:
-				_render(c, 0)
+				if required:
+					_render(c, 0)
+				elif c.pending[0] == null:
+					_jobs.append(_start(c, 0))
 	var ready := true
 	for c in vis:
 		for v in range(1, want_variants):

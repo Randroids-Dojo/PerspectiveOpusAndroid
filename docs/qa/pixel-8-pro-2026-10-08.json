@@ -1,0 +1,407 @@
+{
+  "date": "2026-10-08",
+  "device": "Pixel 8 Pro",
+  "android_version": "17",
+  "source_commit": "447eaa783c2a93548a7b3482d87377472766f494",
+  "test_apk_sha256": "6023563cb246032feb156f507259ad8f55e7e9f9cda5bf35191c3c07785e7794",
+  "input": "120 Hz recorded actions, normal-speed full replay, no teleports",
+  "conditions": {
+    "quality": "medium, automatic detail tier disabled in self-test; Stage resolution governor enabled",
+    "screen_capture_during_campaign": false,
+    "foreground": "QA package checked every two seconds until report completion",
+    "video": "A PiP video was observed during subsequent release QA. Video activity during the campaign was not recorded; timings are not an isolated benchmark."
+  },
+  "campaign": [
+    {
+      "movement": "overture",
+      "notes": 7,
+      "deaths": 0,
+      "switches": 5,
+      "game_time": "0:34.9",
+      "wall_ms": 38929
+    },
+    {
+      "movement": "adagio",
+      "notes": 7,
+      "deaths": 0,
+      "switches": 2,
+      "game_time": "1:04.6",
+      "wall_ms": 67115
+    },
+    {
+      "movement": "scherzo",
+      "notes": 7,
+      "deaths": 0,
+      "switches": 3,
+      "game_time": "0:33.4",
+      "wall_ms": 37036
+    },
+    {
+      "movement": "nocturne",
+      "notes": 7,
+      "deaths": 0,
+      "switches": 3,
+      "game_time": "0:36.8",
+      "wall_ms": 40231
+    },
+    {
+      "movement": "toccata",
+      "notes": 7,
+      "deaths": 0,
+      "switches": 3,
+      "game_time": "1:10.9",
+      "wall_ms": 73897
+    },
+    {
+      "movement": "finale",
+      "notes": 7,
+      "deaths": 0,
+      "switches": 5,
+      "game_time": "0:50.1",
+      "wall_ms": 54162
+    }
+  ],
+  "log_sha256": "1e97d75564dd90a7dfe27641561d18d476ddf3b83f803bb7885d9ab01497ea85",
+  "report": {
+    "adapter": "Mali-G715",
+    "audio": {
+      "ambience": "",
+      "beat": 33.8484294293213,
+      "blend": 1.0,
+      "dropped": 0,
+      "fading_songs": 0,
+      "harmony": "I",
+      "loaded_files": 660,
+      "loading": "title",
+      "loading_files": 2,
+      "mix_rate": 44100.0,
+      "output_latency": 0.0,
+      "played": 2531,
+      "queued": 0,
+      "restored": 7,
+      "song": "ending",
+      "stolen": 52,
+      "voices": 0
+    },
+    "display": "Android",
+    "fails": 0,
+    "frames": {
+      "adagio/complete/3d/medium": {
+        "fps": 56.8778808838823,
+        "frames": 74,
+        "max_ms": 31.552,
+        "over_50_ms": 0,
+        "p50_ms": 17.191,
+        "p95_ms": 27.143,
+        "page_avg_ms": 0.0,
+        "page_max_ms": 0.0,
+        "stage_scale_min": 1.0
+      },
+      "adagio/play/2d/medium": {
+        "fps": 57.7694956890187,
+        "frames": 2039,
+        "max_ms": 46.797,
+        "over_50_ms": 0,
+        "p50_ms": 16.759,
+        "p95_ms": 26.498,
+        "page_avg_ms": 7.04137665522315,
+        "page_max_ms": 33.996,
+        "stage_scale_min": 1.0
+      },
+      "adagio/play/3d/medium": {
+        "fps": 57.0574383250657,
+        "frames": 1812,
+        "max_ms": 633.404,
+        "over_50_ms": 2,
+        "p50_ms": 16.855,
+        "p95_ms": 24.982,
+        "page_avg_ms": 0.0,
+        "page_max_ms": 0.0,
+        "stage_scale_min": 1.0
+      },
+      "adagio/play/switch/medium": {
+        "fps": 26.0395525485829,
+        "frames": 17,
+        "max_ms": 141.044,
+        "over_50_ms": 2,
+        "p50_ms": 26.081,
+        "p95_ms": 141.044,
+        "page_avg_ms": 19.9001764705882,
+        "page_max_ms": 129.903,
+        "stage_scale_min": 1.0
+      },
+      "finale/complete/2d/medium": {
+        "fps": 41.547889713435,
+        "frames": 54,
+        "max_ms": 65.966,
+        "over_50_ms": 2,
+        "p50_ms": 23.463,
+        "p95_ms": 48.723,
+        "page_avg_ms": 7.76581481481481,
+        "page_max_ms": 23.956,
+        "stage_scale_min": 0.7
+      },
+      "finale/play/2d/medium": {
+        "fps": 49.3521809140626,
+        "frames": 1342,
+        "max_ms": 80.116,
+        "over_50_ms": 12,
+        "p50_ms": 18.203,
+        "p95_ms": 38.584,
+        "page_avg_ms": 7.66763338301042,
+        "page_max_ms": 27.458,
+        "stage_scale_min": 0.6
+      },
+      "finale/play/3d/medium": {
+        "fps": 53.5911002144688,
+        "frames": 1387,
+        "max_ms": 709.854,
+        "over_50_ms": 1,
+        "p50_ms": 17.261,
+        "p95_ms": 29.72,
+        "page_avg_ms": 0.00965753424657534,
+        "page_max_ms": 13.395,
+        "stage_scale_min": 0.6
+      },
+      "finale/play/switch/medium": {
+        "fps": 28.2528549798252,
+        "frames": 49,
+        "max_ms": 254.045,
+        "over_50_ms": 7,
+        "p50_ms": 25.273,
+        "p95_ms": 62.672,
+        "page_avg_ms": 20.377693877551,
+        "page_max_ms": 237.618,
+        "stage_scale_min": 0.6
+      },
+      "nocturne/complete/2d/medium": {
+        "fps": 55.3783107769269,
+        "frames": 72,
+        "max_ms": 39.48,
+        "over_50_ms": 0,
+        "p50_ms": 17.441,
+        "p95_ms": 29.393,
+        "page_avg_ms": 5.62165277777778,
+        "page_max_ms": 22.934,
+        "stage_scale_min": 1.0
+      },
+      "nocturne/play/2d/medium": {
+        "fps": 46.2050288238006,
+        "frames": 829,
+        "max_ms": 170.513,
+        "over_50_ms": 17,
+        "p50_ms": 19.728,
+        "p95_ms": 39.934,
+        "page_avg_ms": 8.91060796139928,
+        "page_max_ms": 157.683,
+        "stage_scale_min": 1.0
+      },
+      "nocturne/play/3d/medium": {
+        "fps": 53.2954995712114,
+        "frames": 1176,
+        "max_ms": 707.041,
+        "over_50_ms": 2,
+        "p50_ms": 17.322,
+        "p95_ms": 28.57,
+        "page_avg_ms": 0.0,
+        "page_max_ms": 0.0,
+        "stage_scale_min": 0.95
+      },
+      "nocturne/play/switch/medium": {
+        "fps": 27.4554306841893,
+        "frames": 24,
+        "max_ms": 174.736,
+        "over_50_ms": 2,
+        "p50_ms": 28.624,
+        "p95_ms": 62.272,
+        "page_avg_ms": 22.195625,
+        "page_max_ms": 160.283,
+        "stage_scale_min": 1.0
+      },
+      "overture/complete/2d/medium": {
+        "fps": 54.1155236858312,
+        "frames": 71,
+        "max_ms": 51.919,
+        "over_50_ms": 1,
+        "p50_ms": 18.29,
+        "p95_ms": 30.864,
+        "page_avg_ms": 5.52254929577465,
+        "page_max_ms": 18.579,
+        "stage_scale_min": 1.0
+      },
+      "overture/play/2d/medium": {
+        "fps": 56.6074813124745,
+        "frames": 1103,
+        "max_ms": 70.705,
+        "over_50_ms": 3,
+        "p50_ms": 16.889,
+        "p95_ms": 28.327,
+        "page_avg_ms": 7.18467815049863,
+        "page_max_ms": 61.604,
+        "stage_scale_min": 1.0
+      },
+      "overture/play/3d/medium": {
+        "fps": 56.899845840602,
+        "frames": 1031,
+        "max_ms": 468.741,
+        "over_50_ms": 2,
+        "p50_ms": 16.658,
+        "p95_ms": 26.222,
+        "page_avg_ms": 0.0,
+        "page_max_ms": 0.0,
+        "stage_scale_min": 1.0
+      },
+      "overture/play/switch/medium": {
+        "fps": 35.4875229359933,
+        "frames": 61,
+        "max_ms": 181.328,
+        "over_50_ms": 3,
+        "p50_ms": 21.961,
+        "p95_ms": 38.619,
+        "page_avg_ms": 14.785,
+        "page_max_ms": 161.146,
+        "stage_scale_min": 1.0
+      },
+      "scherzo/complete/2d/medium": {
+        "fps": 45.4316196372401,
+        "frames": 59,
+        "max_ms": 45.032,
+        "over_50_ms": 0,
+        "p50_ms": 20.801,
+        "p95_ms": 37.584,
+        "page_avg_ms": 7.72283050847458,
+        "page_max_ms": 17.622,
+        "stage_scale_min": 0.95
+      },
+      "scherzo/play/2d/medium": {
+        "fps": 52.0968295314249,
+        "frames": 1190,
+        "max_ms": 124.48,
+        "over_50_ms": 6,
+        "p50_ms": 17.324,
+        "p95_ms": 34.573,
+        "page_avg_ms": 8.23064873949581,
+        "page_max_ms": 100.652,
+        "stage_scale_min": 0.95
+      },
+      "scherzo/play/3d/medium": {
+        "fps": 46.3982920922454,
+        "frames": 659,
+        "max_ms": 999.65,
+        "over_50_ms": 5,
+        "p50_ms": 17.459,
+        "p95_ms": 34.293,
+        "page_avg_ms": 0.0,
+        "page_max_ms": 0.0,
+        "stage_scale_min": 0.9
+      },
+      "scherzo/play/switch/medium": {
+        "fps": 27.627949283586,
+        "frames": 26,
+        "max_ms": 222.805,
+        "over_50_ms": 1,
+        "p50_ms": 27.227,
+        "p95_ms": 48.393,
+        "page_avg_ms": 19.7778846153846,
+        "page_max_ms": 203.896,
+        "stage_scale_min": 0.95
+      },
+      "title/ending/2d/medium": {
+        "fps": 57.5156627131998,
+        "frames": 600,
+        "max_ms": 53.714,
+        "over_50_ms": 1,
+        "p50_ms": 16.807,
+        "p95_ms": 26.507,
+        "page_avg_ms": 6.03719,
+        "page_max_ms": 20.511,
+        "stage_scale_min": 0.75
+      },
+      "title/ending/3d/medium": {
+        "fps": 56.3393305713132,
+        "frames": 1065,
+        "max_ms": 268.426,
+        "over_50_ms": 4,
+        "p50_ms": 16.858,
+        "p95_ms": 26.141,
+        "page_avg_ms": 0.0107981220657277,
+        "page_max_ms": 6.322,
+        "stage_scale_min": 0.7
+      },
+      "title/ending/switch/medium": {
+        "fps": 36.3911924751577,
+        "frames": 51,
+        "max_ms": 210.723,
+        "over_50_ms": 2,
+        "p50_ms": 23.277,
+        "p95_ms": 42.016,
+        "page_avg_ms": 13.4930196078431,
+        "page_max_ms": 194.995,
+        "stage_scale_min": 0.75
+      },
+      "title/title/3d/medium": {
+        "fps": 51.111814143344,
+        "frames": 58,
+        "max_ms": 114.084,
+        "over_50_ms": 2,
+        "p50_ms": 16.858,
+        "p95_ms": 37.14,
+        "page_avg_ms": 0.0,
+        "page_max_ms": 0.0,
+        "stage_scale_min": 1.0
+      },
+      "toccata/complete/2d/medium": {
+        "fps": 40.7006658014576,
+        "frames": 53,
+        "max_ms": 61.988,
+        "over_50_ms": 1,
+        "p50_ms": 22.825,
+        "p95_ms": 48.522,
+        "page_avg_ms": 7.94892452830189,
+        "page_max_ms": 20.044,
+        "stage_scale_min": 0.6
+      },
+      "toccata/play/2d/medium": {
+        "fps": 49.60558158978,
+        "frames": 1377,
+        "max_ms": 92.108,
+        "over_50_ms": 12,
+        "p50_ms": 18.493,
+        "p95_ms": 36.362,
+        "page_avg_ms": 7.8423848946986,
+        "page_max_ms": 26.913,
+        "stage_scale_min": 0.6
+      },
+      "toccata/play/3d/medium": {
+        "fps": 47.1040883852268,
+        "frames": 2151,
+        "max_ms": 547.988,
+        "over_50_ms": 13,
+        "p50_ms": 18.566,
+        "p95_ms": 38.139,
+        "page_avg_ms": 0.0,
+        "page_max_ms": 0.0,
+        "stage_scale_min": 0.6
+      },
+      "toccata/play/switch/medium": {
+        "fps": 26.5612661142604,
+        "frames": 26,
+        "max_ms": 172.281,
+        "over_50_ms": 3,
+        "p50_ms": 29.686,
+        "p95_ms": 92.346,
+        "page_avg_ms": 20.6050769230769,
+        "page_max_ms": 152.218,
+        "stage_scale_min": 0.6
+      }
+    },
+    "mode": "full",
+    "passes": 25,
+    "renderer": "mobile",
+    "speed": 1.0,
+    "window": [
+      2244,
+      1008
+    ]
+  }
+}

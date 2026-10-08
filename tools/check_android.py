@@ -41,6 +41,8 @@ def main() -> int:
     try:
         if run("get-state") != "device":
             raise RuntimeError("The requested ADB device is not connected.")
+        if re.search(r"\bmode=pinned\b", run("shell", "dumpsys", "activity", "activities")):
+            raise RuntimeError("Picture-in-picture is active. Close video playback before running the device checks.")
         if args.install:
             print(run("install", "--no-incremental", "-r", "--user", "0",
                       str(root / "build/PerspectiveOpus-selftest.apk")), flush=True)
@@ -66,6 +68,8 @@ def main() -> int:
                 current = next((line for line in focus.splitlines() if "mCurrentFocus=" in line), "")
                 if PACKAGE + "/" not in current:
                     raise RuntimeError("The device foreground changed. Test stopped without touching the other app.")
+                if re.search(r"\bmode=pinned\b", run("shell", "dumpsys", "activity", "activities")):
+                    raise RuntimeError("Picture-in-picture started during the test. This run is not an isolated device check.")
                 if time.monotonic() >= next_update:
                     lines = [line for line in log.splitlines() if "SELFTEST " in line]
                     print(lines[-1] if lines else "Waiting for the renderer and test runner...", flush=True)
