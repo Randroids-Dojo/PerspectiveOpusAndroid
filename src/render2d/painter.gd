@@ -124,6 +124,9 @@ func use(kind: int = NORMAL, rects: PackedVector4Array = PackedVector4Array()) -
 		RenderingServer.canvas_item_set_parent(it, parent)
 		RenderingServer.canvas_item_set_draw_index(it, items.size())
 		RenderingServer.canvas_item_set_default_texture_filter(it, RenderingServer.CANVAS_ITEM_TEXTURE_FILTER_LINEAR_WITH_MIPMAPS)
+		# Replayed meshes are culled by their untransformed bounds; the page is one screen,
+		# so never cull.
+		RenderingServer.canvas_item_set_custom_rect(it, true, Rect2(-1e6, -1e6, 2e6, 2e6))
 		items.append(it)
 		clip_mats.append(null)
 	cur = items[used]

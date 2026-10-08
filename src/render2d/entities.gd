@@ -164,7 +164,7 @@ static func draw_note(pt: PagePainter, p: PageEnv.Proj, env: PageEnv, i: int, x:
 		var rec: Variant = env.cache.lookup(key)
 		if rec == null:
 			pt.begin_record()
-			_note_glyph(pt, p.local(x, cy), env, i, z, t, turn, -1.0)
+			_note_glyph(pt, p.local(0, 0), env, i, z, t, turn, -1.0)
 			rec = pt.end_record()
 			env.cache.store(key, rec)
 		pt.replay(rec, turn_xf)

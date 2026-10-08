@@ -373,9 +373,7 @@ func ambient(pt: PagePainter, dt: float, cam_x: float, cam_y: float, ppu: float,
 				for l in 4:
 					var ox := sin(a.seed + l * 2.1) * a.size * 4.0
 					var oy := cos(a.seed * 0.7 + l) * a.size * 0.5
-					var e := PageInk.arc_pts(a.x + ox, a.y + oy, a.size * (7.0 - l * 1.2), a.size * (1.1 - l * 0.15), 0, 0, TAU, false, 6.0)
-					e.resize(e.size() - 1)
-					pt.fill(e, PageTones.alpha(a.color, fade * 0.07), false)
+					pt.ellipse_dot(a.x + ox, a.y + oy, a.size * (7.0 - l * 1.2), a.size * (1.1 - l * 0.15), PageTones.alpha(a.color, fade * 0.07))
 
 
 func _spawn(kind: String, W: float, H: float, dpr: float, anywhere: bool) -> Amb:
