@@ -331,25 +331,24 @@ static func linear_x(ci: CanvasItem, box: Rect2, stops: Array) -> void:
 			PackedColorArray([c0, c1, c1, c0]))
 
 
-## A pill or circle outline (CSS border-radius: 999px) with a translucent fill.
-static func pill(ci: CanvasItem, rect: Rect2, fill: Color, edge: Color, edge_w := 1.0) -> void:
-	var r := minf(rect.size.x, rect.size.y) / 2.0
-	var pts := PackedVector2Array()
-	var n := 20
-	var centers := [Vector2(rect.end.x - r, rect.position.y + r), Vector2(rect.end.x - r, rect.end.y - r), Vector2(rect.position.x + r, rect.end.y - r), Vector2(rect.position.x + r, rect.position.y + r)]
-	for q in 4:
-		for i in n + 1:
-			var a := -PI / 2.0 + q * PI / 2.0 + PI / 2.0 * i / n
-			pts.append(centers[q] + Vector2(cos(a), sin(a)) * r)
-	if fill.a > 0.0:
-		ci.draw_colored_polygon(pts, fill)
-	if edge.a > 0.0:
-		var inset := PackedVector2Array()
-		var cr: Vector2 = rect.get_center()
-		for p in pts:
-			inset.append(p + (cr - p).normalized() * edge_w / 2.0 if (p - cr).length() > 0.01 else p)
-		inset.append(inset[0])
-		ci.draw_polyline(inset, edge, edge_w, true)
+## A pill or circle (CSS border-radius: 999px) with a 1 px edge and a translucent fill.
+static func pill(ci: CanvasItem, rect: Rect2, fill: Color, edge: Color) -> void:
+	_pill_box.bg_color = fill
+	_pill_box.border_color = edge
+	_pill_box.set_corner_radius_all(ceili(minf(rect.size.x, rect.size.y) / 2.0))
+	ci.draw_style_box(_pill_box, rect)
+
+
+static var _pill_box := _make_pill_box()
+
+
+static func _make_pill_box() -> StyleBoxFlat:
+	var b := StyleBoxFlat.new()
+	b.set_border_width_all(1)
+	b.anti_aliasing = true
+	b.anti_aliasing_size = 0.5
+	b.corner_detail = 16
+	return b
 
 
 ## m:ss.s, like the web build's fmtTime.

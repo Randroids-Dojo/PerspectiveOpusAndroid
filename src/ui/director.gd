@@ -113,8 +113,8 @@ func _setup() -> void:
 	app.frame_done.connect(_frame)
 	hud.switch_pressed.connect(_on_badge)
 	hud.pause_pressed.connect(pause)
-	touch.jumped.connect(func() -> void: _haptic(8))
-	touch.switched.connect(func() -> void: _haptic(14))
+	touch.jumped.connect(func() -> void: _haptic(8, 0.4))
+	touch.switched.connect(func() -> void: _haptic(14, 0.6))
 	if _args.has("device"):
 		app.input.device = String(_args.device)
 	UiStyle.device = app.input.device
@@ -165,6 +165,7 @@ func _show_title(first := false) -> void:
 	app.start_level("title", "3d")
 	app.input.enabled = false
 	app.paused = false
+	_audio("set_paused", [false])
 	app.view.has_focus = true
 	app.view.focus = Vector3(20, 9.2, 4)
 	app.view.orbit = Vector3.ZERO
@@ -246,6 +247,7 @@ func _begin_play(index: int, mode: String) -> void:
 	app.input.enabled = true
 	app.input.flush()
 	app.paused = false
+	_audio("set_paused", [false])
 	_complete_timer = -1.0
 	hud.set_level(game)
 	hud.show_hud(true)
@@ -332,6 +334,10 @@ func resume() -> void:
 func _complete() -> void:
 	var game := app.game
 	var index := level_index()
+	if index < 0:
+		# Not a movement (the gallery): nothing to record, back to the title.
+		_fade_out(_show_title)
+		return
 	var id: String = ids[index]
 	var rec := save.record(id, game.level.notes.size())
 	var was_done := bool(rec.done)
@@ -500,13 +506,13 @@ func _on_events(events: Array) -> void:
 				_complete_timer = 0.0
 			"death":
 				app.view.shake = 0.0 if reduce else 0.6
-				_haptic(30)
 			"land":
 				var impact := float(e.impact)
 				if impact > 17.0:
 					app.view.shake = maxf(app.view.shake, 0.0 if reduce else 0.25)
+				# A tap underfoot, firmer for a long fall.
 				if impact > 9.0:
-					_haptic(18 if impact > 17.0 else 7)
+					_haptic(18 if impact > 17.0 else 8, 0.7 if impact > 17.0 else 0.25)
 
 
 ## The UI's colours follow the world, easing over half a second when it turns.
@@ -603,7 +609,7 @@ func _on_device(d: String) -> void:
 
 func _on_badge() -> void:
 	app.input.press_switch()
-	_haptic(14)
+	_haptic(14, 0.6)
 
 
 func _fade_out(then: Callable) -> void:
@@ -658,9 +664,9 @@ func _play_music() -> void:
 		_audio("preload", [SONGS[ids[mini(next, ids.size() - 1)]]])
 
 
-func _haptic(ms: int) -> void:
+func _haptic(ms: int, amplitude: float) -> void:
 	if _mobile and app.input.device == "touch" and bool(save.settings.get("haptics", true)):
-		Input.vibrate_handheld(ms)
+		Input.vibrate_handheld(ms, amplitude)
 
 
 func _apply_settings() -> void:
