@@ -27,7 +27,7 @@ Music uses synchronized Score and Stage arrangements, restored-note layers, equa
 
 The campaign replay feeds the web's 120 Hz action recordings through the native simulation and director. Desktop checks use increased speed; the exported Pixel campaign ran at normal speed. Separate flow checks use normal-speed keyboard, touch, controller and Android back events. Flow tests teleport to a pickup and exit for persistence and menu checks; the full campaign does not teleport.
 
-Release APK: 94.3 MiB, targets API 35. Play AAB: 89.7 MiB, targets API 36 through the Gradle export. Both use the existing upload certificate. The APK signature and the AAB JAR signature verify. During world switches the native reverb differs from the web reference by up to 3.2 dB, typically 1 to 2 dB. Physical Android audio output and latency remain unverified.
+Release APK: 94.4 MiB, targets API 35. Play AAB: 89.7 MiB, targets API 36 through the Gradle export. Both were rebuilt with the terrain preparation change from commit `a10e18f`. They use the existing upload certificate; the APK signature, 16 KiB archive alignment and the AAB JAR signature verify. All 736 imported audio streams and eight scores are included. During world switches the native reverb differs from the web reference by up to 3.2 dB, typically 1 to 2 dB. Physical Android listening and actual touch-to-sound latency remain unverified.
 
 Evidence from this run:
 
