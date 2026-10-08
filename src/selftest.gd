@@ -213,6 +213,7 @@ func _flow() -> void:
 	trigger.axis_value = 0.8
 	probe._input(trigger)
 	_check("trigger_press", probe.consume_switch())
+	_check("trigger_uses_pad_hints", probe.device == "gamepad")
 	probe._input(trigger)
 	_check("trigger_hold_once", not probe.consume_switch())
 	trigger.axis_value = -1.0

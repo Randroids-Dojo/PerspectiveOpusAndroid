@@ -6,7 +6,7 @@ The native game now draws the web build's illuminated Score and lit Stage, inclu
 
 The HUD gives an explicit note count and recovery notices. The touch switch names its destination, while the HUD badge names the current world. Nocturne uses silver ink and gold accents on indigo plates. Movement cards clear after 2.8 seconds. Reduced motion removes pickup flights, card travel, badge pulses and idle camera orbits. Each pickup is saved immediately.
 
-Held controller triggers switch once per press. Losing focus clears held input and suspends polling; focus return restores input. Releasing the movement finger preserves another finger's held jump. Pause, keyboard Escape, controller back and the Android back gesture each perform one action.
+Held controller triggers switch once per press and select controller hints. Losing focus clears held input and suspends polling; focus return restores input. Releasing the movement finger preserves another finger's held jump. Pause, keyboard Escape, controller back and the Android back gesture each perform one action.
 
 Music uses synchronized Score and Stage arrangements, restored-note layers, equal-power crossfades, and the original room and hall recordings. Effects follow the current harmony. Audio includes ambience, menu filtering, switch swells and the master compressor and limiter. Shutdown waits for the audio server to release stopped playbacks.
 
@@ -15,7 +15,7 @@ Music uses synchronized Score and Stage arrangements, restored-note layers, equa
 | Check | Result |
 | --- | --- |
 | Simulation parity | All six web recordings finish with seven notes and zero deaths; maximum position drift below 3e-14 |
-| Native input and UI flow | 41 checks pass, including focus recovery, independent touch contacts, held triggers, pause/back and pickup persistence |
+| Native input and UI flow | 42 checks pass, including focus recovery, independent touch contacts, held triggers, pause/back and pickup persistence |
 | Native full campaign | 25 checks pass; six movements, 42 saved notes, zero deaths, ending and return to title |
 | Native shutdown | Flow, campaign and windowed screenshot exit without script errors or leaked resources |
 | Native presentation | All palettes and both switch directions compared against the web build; night Score with touch HUD inspected after integration |

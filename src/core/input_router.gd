@@ -110,6 +110,7 @@ func _input(event: InputEvent) -> void:
 			var trigger := "%d:%d" % [event.device, event.axis]
 			var previous: float = _triggers.get(trigger, 0.0)
 			if event.axis_value > 0.6 and previous <= 0.6:
+				_set_device("gamepad")
 				_switch_latch = true
 			_triggers[trigger] = event.axis_value
 		elif absf(event.axis_value) > 0.4:
