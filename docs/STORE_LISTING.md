@@ -45,3 +45,11 @@ A game by toyboxes.games. Also playable in the browser at perspective-opus.verce
 - Target audience: all ages (the game collects nothing; choosing ages under 13 adds Google's Families policy checks, which it meets).
 - Data safety: no data collected, no data shared, no data encrypted in transit needed (no network use).
 - News app: no. COVID-19 app: no. Government app: no. Financial features: none. Health: none.
+
+## Play Console state
+
+- Developer account: Toyboxes (organization, randy@randroid.dev), account 4940278051196101377. Organization accounts can release to production without the 12-tester closed test.
+- App: Perspective Opus, `app.toyboxes.perspectiveopus`, app id 4974223691200858640, created 2026-10-08 as a free game in English (US).
+- Done in the console: all ten App content declarations (privacy policy, no ads, no sign in, IARC questionnaire, target audience 13 and over, data safety with no data collected or shared, no advertising ID, not a government app, no financial or health features), store settings (Game, Puzzle; support@toyboxes.app; https://perspective-opus.vercel.app), and a draft default listing with text, icon (`docs/store/icon-512.png`) and feature graphic.
+- IARC results: ESRB Everyone (Mild Fantasy Violence), PEGI 3, USK 6+, IARC 3+.
+- Still to do: phone screenshots from the native build, upload the signed bundle, choose the track and send for review.
