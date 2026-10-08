@@ -1,0 +1,30 @@
+; Engine configuration file.
+
+config_version=5
+
+[application]
+
+config/name="Perspective Opus"
+config/description="A symphony in two worlds. Switch between the page and the stage at any moment."
+config/version="1.0.0"
+run/main_scene="res://main.tscn"
+config/quit_on_go_back=false
+config/features=PackedStringArray("4.6", "Mobile")
+boot_splash/bg_color=Color(0.051, 0.043, 0.063, 1)
+boot_splash/show_image=false
+config/icon="res://icon.png"
+
+[display]
+
+window/size/viewport_width=844
+window/size/viewport_height=390
+window/size/window_width_override=1688
+window/size/window_height_override=780
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=4
+
+[rendering]
+
+renderer/rendering_method="mobile"
+textures/vram_compression/import_etc2_astc=true
