@@ -227,7 +227,7 @@ func load_level(game: Sim, palette: Dictionary) -> void:
 	_bg_root.name = "BackdropRoot"
 	_bg_vp.add_child(_bg_root)
 	_backdrop.build(_bake, _bg_root, _bg_env, _mats)
-	_quaver.setup(_bake)
+	_quaver.setup(_bake, _mats)
 	_entities.setup(_bake, _lv)
 	_props.setup(_bake)
 
@@ -487,11 +487,43 @@ func _dev_args() -> void:
 
 func _dev_frame() -> void:
 	_dev_frames += 1
+	if _dev.has("stage-perf"):
+		_perf_frame()
 	if _dev.has("stage-dump") and _dev_frames == int(_dev.get("frames", "90")) - 1:
 		var path := String(_dev["stage-dump"])
 		_vp.get_texture().get_image().save_exr(path)
 		_bg_vp.get_texture().get_image().save_exr(path.replace(".exr", "_bg.exr"))
 		print("STAGE DUMP ", path)
+
+
+## --stage-perf logs frame times and the stage viewports' GPU times every two seconds.
+var _perf_dts: Array[float] = []
+var _perf_last := 0
+
+
+func _perf_frame() -> void:
+	if _perf_last == 0:
+		_perf_last = Time.get_ticks_usec()
+		for v in [_vp, _bg_vp]:
+			RenderingServer.viewport_set_measure_render_time(v.get_viewport_rid(), true)
+		RenderingServer.viewport_set_measure_render_time(get_tree().root.get_viewport_rid(), true)
+		return
+	var now := Time.get_ticks_usec()
+	_perf_dts.append((now - _perf_last) / 1000.0)
+	_perf_last = now
+	if _perf_dts.size() < 120:
+		return
+	var sorted := _perf_dts.duplicate()
+	sorted.sort()
+	var n := sorted.size()
+	var total := 0.0
+	for d in sorted:
+		total += d
+	var gpu := func(v: Viewport) -> float: return RenderingServer.viewport_get_measured_render_time_gpu(v.get_viewport_rid())
+	print("STAGE PERF fps %.1f  frame p50 %.2f ms p95 %.2f ms  gpu scene %.2f ms backdrop %.2f ms root %.2f ms  scale %.2f  scene %dx%d  %s  draws %d" % [
+		1000.0 * n / total, sorted[n / 2], sorted[int(n * 0.95)], gpu.call(_vp), gpu.call(_bg_vp), gpu.call(get_tree().root),
+		_res_scale, _vp.size.x, _vp.size.y, _quality, Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)])
+	_perf_dts.clear()
 
 
 ## For the profiling overlay and tests.

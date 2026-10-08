@@ -389,7 +389,7 @@ const pick = (o: any, keys: string[]): any => Object.fromEntries(keys.map((k) =>
       flora: state(c, pick(s.flora, ['tufts', 'full'])),
       backdrop: state(c, pick(s.backdrop, ['waterY', 'spinners', 'shafts', 'hands', 'bodyDir', 'skyMat', 'flatMat', 'lightMat', 'cloudMat', 'starMat', 'waterMat', 'bankMat', 'water', 'follow', 'sim'])),
       quaver: state(c, {
-        ...pick(s.quaver, ['group', 'root', 'body', 'headPivot', 'eyes', 'legs', 'stemTop', 'neck', 'xray', 'blob', 'mats']),
+        ...pick(s.quaver, ['group', 'root', 'body', 'headPivot', 'eyes', 'legs', 'stemTop', 'neck', 'xray', 'blob', 'landing', 'mats']),
         ribbons: s.quaver.ribbons.map((r: any) => ({ mesh: r.mesh, w0: r.w0, w1: r.w1, align: r.align, n: r.chain.n, seg: r.chain.seg })),
       }),
     },

@@ -118,6 +118,9 @@ var _neck: Node3D
 var _xray: Array = []
 var _blob: Node3D
 var _blob_mats: Array = []
+## The warm ring under an airborne Quaver marking where they will land.
+var _landing: MeshInstance3D
+var _landing_mat: ShaderMaterial
 var _flag: Chain
 var _scarf_a: Chain
 var _scarf_b: Chain
@@ -136,7 +139,7 @@ var _lean := 0.0
 var _prev_vel := Vector3.ZERO
 
 
-func setup(bake: StageBake) -> void:
+func setup(bake: StageBake, factory: StageMaterials) -> void:
 	var s: Dictionary = bake.module("quaver")
 	_group = s.group
 	_root = s.root
@@ -149,6 +152,24 @@ func setup(bake: StageBake) -> void:
 	_xray = s.xray
 	_blob = s.blob
 	_blob_mats = [(_blob as MeshInstance3D).material_override]
+	# Bakes made after the web build added its landing ring carry the mesh; otherwise
+	# build the same one (RingGeometry(0.28, 0.31, 48) flat, #f2cc7f, sorted at 3).
+	if s.get("landing") is MeshInstance3D:
+		_landing = s.landing
+		_landing_mat = _landing.material_override
+	else:
+		_landing = MeshInstance3D.new()
+		_landing.name = "Landing"
+		_landing.mesh = _ring_mesh(0.28, 0.31, 48)
+		_landing.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		_landing_mat = factory.unlit("blob")
+		_landing_mat.set_shader_parameter("color", StageUtil.col("#f2cc7f"))
+		_landing_mat.set_shader_parameter("opacity", 0.65)
+		_landing_mat.set_shader_parameter("use_fog", true)
+		_landing_mat.render_priority = 3
+		_landing.material_override = _landing_mat
+		_group.add_child(_landing)
+	_landing.visible = false
 	var rs: Array = s.ribbons
 	_flag = Chain.new(int(rs[0].n), float(rs[0].seg))
 	_scarf_a = Chain.new(int(rs[1].n), float(rs[1].seg))
@@ -268,8 +289,9 @@ func update(game: Sim, frame: Dictionary, sim: Node3D) -> void:
 		pupil.position.y = -0.01 + clampf(pl.vel.y * 0.0015, -0.02, 0.02)
 		pupil.position.z = 0.0
 
-	# Contact shadow on whatever is below.
-	var gy := _ground_below(game, feet)
+	# Contact shadow on whatever is below, and the landing ring while airborne.
+	var surface: Variant = _ground_below(game, feet)
+	var gy: float = surface if surface != null else -99.0
 	var hgt := maxf(0.0, feet.y - gy)
 	_blob.visible = not dead and gy > -50.0
 	_blob.position = Vector3(feet.x, gy + 0.02, feet.z)
@@ -277,6 +299,9 @@ func update(game: Sim, frame: Dictionary, sim: Node3D) -> void:
 	_blob.scale = Vector3(bs, 1.0, bs * 0.85)
 	for m in _blob_mats:
 		m.set_shader_parameter("opacity", 0.42 * maxf(0.0, 1.0 - hgt / 6.0))
+	_landing.visible = not dead and not game.finished and not pl.grounded and surface != null and hgt < 8.0
+	_landing.position = Vector3(feet.x, gy + 0.035, feet.z)
+	_landing_mat.set_shader_parameter("opacity", 0.65 * minf(1.0, hgt * 3.0) * maxf(0.0, 1.0 - hgt / 10.0))
 
 	# Flag and scarf chains in simulation space.
 	var inv := sim.global_transform.affine_inverse()
@@ -316,25 +341,61 @@ func update(game: Sim, frame: Dictionary, sim: Node3D) -> void:
 		x.visible = not dead
 
 
-## Height of the first solid surface under a point (voxels and solid bodies).
-func _ground_below(game: Sim, p: Vector3) -> float:
+## The surface directly below a point, including stands, gates and drums, or null: a
+## port of the web build's shared groundBelow (src/render/ground.ts). On the page the
+## level is projected, so any block in the column counts and bodies ignore depth.
+func _ground_below(game: Sim, p: Vector3) -> Variant:
 	var lv := game.level
 	var x := floori(p.x)
 	var z := floori(p.z)
-	var best := -99.0
-	if x >= 0 and x < lv.w and z >= 0 and z < lv.d:
-		var y := mini(lv.h - 1, floori(p.y + 0.05))
+	var projected := game.mode == "2d" and not game.player.embedded
+	var best: Variant = null
+	if x >= 0 and x < lv.w and (projected or (z >= 0 and z < lv.d)):
+		var y := mini(lv.h - 1, floori(p.y - 0.04))
 		while y >= 0:
-			var m := lv.cells[x + lv.w * (y + lv.h * z)]
-			if m != 0 and m != 8:
-				best = y + 1
+			var solid := lv.front[x + lv.w * y] != Level.NO_DEPTH if projected else Level.is_solid_mat(lv.cells[x + lv.w * (y + lv.h * z)])
+			if solid:
+				best = float(y + 1)
 				break
 			y -= 1
 	for b in game.bodies:
-		if not b.solid:
+		if not b.solid or b.max.y > p.y + 0.08:
 			continue
-		if p.x < b.min.x or p.x > b.max.x or p.z < b.min.z or p.z > b.max.z:
+		if p.x < b.min.x or p.x > b.max.x:
 			continue
-		if b.max.y <= p.y + 0.05 and b.max.y > best:
-			best = b.max.y
+		if not projected and (p.z < b.min.z or p.z > b.max.z):
+			continue
+		best = maxf(best if best != null else -INF, b.max.y)
 	return best
+
+
+## three.js RingGeometry(inner, outer, segments) laid flat facing up, Godot winding.
+static func _ring_mesh(inner: float, outer: float, segments: int) -> ArrayMesh:
+	var pos := PackedVector3Array()
+	var nor := PackedVector3Array()
+	var uv := PackedVector2Array()
+	var idx := PackedInt32Array()
+	for j in 2:
+		var r := inner + j * (outer - inner)
+		for i in segments + 1:
+			var a := float(i) / segments * PI * 2.0
+			# rotateX(-PI / 2) takes (x, y, 0) to (x, 0, -y).
+			pos.append(Vector3(r * cos(a), 0.0, -r * sin(a)))
+			nor.append(Vector3.UP)
+			uv.append(Vector2((r * cos(a) / outer + 1.0) / 2.0, (r * sin(a) / outer + 1.0) / 2.0))
+	for i in segments:
+		var a0 := i
+		var b0 := i + segments + 1
+		var c0 := i + segments + 2
+		var d0 := i + 1
+		# three.js faces (a, b, d) and (b, c, d), reversed.
+		idx.append_array([a0, d0, b0, b0, d0, c0])
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = pos
+	arrays[Mesh.ARRAY_NORMAL] = nor
+	arrays[Mesh.ARRAY_TEX_UV] = uv
+	arrays[Mesh.ARRAY_INDEX] = idx
+	var m := ArrayMesh.new()
+	m.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return m
