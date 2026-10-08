@@ -110,6 +110,9 @@ func _run() -> void:
 	Engine.time_scale = 1.0
 	_log("%d passed, %d failed" % [_passes, _fails])
 	_log("PASS" if _fails == 0 else "FAIL")
+	app.paused = true
+	if app.audio and app.audio.has_method("prepare_quit"):
+		await app.audio.prepare_quit()
 	get_tree().quit(0 if _fails == 0 else 1)
 
 
@@ -203,6 +206,34 @@ func _back_gesture() -> void:
 # ---------------------------------------------------------------- flow
 
 func _flow() -> void:
+	# Held controller triggers emit one switch until released, including after focus loss.
+	var probe := InputRouter.new()
+	var trigger := InputEventJoypadMotion.new()
+	trigger.axis = JOY_AXIS_TRIGGER_RIGHT
+	trigger.axis_value = 0.8
+	probe._input(trigger)
+	_check("trigger_press", probe.consume_switch())
+	probe._input(trigger)
+	_check("trigger_hold_once", not probe.consume_switch())
+	trigger.axis_value = -1.0
+	probe._input(trigger)
+	trigger.axis_value = 0.8
+	probe._input(trigger)
+	_check("trigger_release_rearms", probe.consume_switch())
+	probe.touch_x = 1.0
+	probe.touch_jump = true
+	probe.press_jump()
+	probe.notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
+	_check("focus_releases_input", probe.frame() == [0.0, 0.0, false, false, false])
+	var held_key := InputEventKey.new()
+	held_key.physical_keycode = KEY_RIGHT
+	held_key.pressed = true
+	probe._input(held_key)
+	_check("background_ignores_input", probe.frame() == [0.0, 0.0, false, false, false])
+	probe.notification(NOTIFICATION_APPLICATION_FOCUS_IN)
+	probe._input(held_key)
+	_check("focus_restores_input", probe.frame()[0] == 1.0)
+	probe.free()
 	var game_x := func() -> float: return app.game.player.pos.x
 	_check("title", director.state == "title" and _top_id() == "begin", director.state)
 	# Keyboard: down to Programme, open it.
@@ -266,8 +297,10 @@ func _flow() -> void:
 	_touch(2, j, true)
 	await _wait(0.1)
 	_check("jump_button", app.game.player.since_jump < 0.3, "since_jump %.2f" % app.game.player.since_jump)
-	_touch(2, j, false)
 	_touch(1, at - Vector2(60, 0), false)
+	await _wait(0.05)
+	_check("stick_release_keeps_jump", app.input.touch_jump and app.input.touch_x == 0.0)
+	_touch(2, j, false)
 	await _wait(0.6)
 	_check("stick_released", app.input.touch_x == 0.0)
 	# The world button turns to the Score; the badge turns back.
@@ -304,6 +337,12 @@ func _flow() -> void:
 	_check("back_gesture_leaves_settings", director.state == "pause" and _top_id() == "resume", "%s %s" % [director.state, _top_id()])
 	await _back_gesture()
 	_check("back_gesture_resumes", director.state == "play", director.state)
+	# A real pickup persists before the arch is reached.
+	var note: V3 = app.game.level.notes[0].pos
+	app.teleport(note.x, note.y - 0.43, note.z)
+	await _wait(0.2)
+	var partial = JSON.parse_string(FileAccess.get_file_as_string(director.save.path))
+	_check("pickup_saved_before_finish", app.game.notes_taken[0] and partial.movements.overture.notes[0])
 	# Finish: put Quaver by the arch and walk in.
 	var ex := app.game.level.exit_pos
 	app.teleport(ex.x - 1.5, ex.y, ex.z)

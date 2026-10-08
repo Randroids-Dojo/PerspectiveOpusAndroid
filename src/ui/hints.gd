@@ -5,7 +5,7 @@ extends RefCounted
 
 const HINTS := {
 	"move": ["Move with A and D, or the arrow keys", "Move with the left stick", "Drag on the left of the screen to move"],
-	"jump": ["Space to jump. Hold it to jump higher", "A to jump. Hold it to jump higher", "Tap the round button to jump"],
+	"jump": ["Space to jump. Hold it to jump higher", "A to jump. Hold it to jump higher", "Hold the round button to jump higher"],
 	"depth": [
 		"W and S walk towards the back and the front of the stage",
 		"Push the stick up and down to walk in depth",

@@ -30,6 +30,9 @@ static var gold_shader: Shader
 
 static var _stage := {}
 static var _score := {}
+static var _score_dark := {}
+static var dark_page := false
+static var reduce_motion := false
 static var _spaced := {}
 static var _ready := false
 
@@ -45,7 +48,7 @@ static func setup() -> void:
 		"accent_deep": _rgba(185, 138, 58),
 		"card": _rgba(22, 14, 22, 0.78),
 		"card_edge": _rgba(230, 196, 124, 0.42),
-		"slot_empty": _rgba(245, 234, 210, 0.42),
+		"slot_empty": _rgba(245, 234, 210, 0.62),
 		"fade": _rgba(13, 10, 16),
 		"scrim_in": _rgba(10, 6, 14, 0.25),
 		"scrim_out": _rgba(10, 6, 14, 0.72),
@@ -61,7 +64,7 @@ static func setup() -> void:
 		"accent_deep": _rgba(122, 32, 24),
 		"card": _rgba(244, 234, 210, 0.94),
 		"card_edge": _rgba(42, 32, 27, 0.55),
-		"slot_empty": _rgba(42, 32, 27, 0.3),
+		"slot_empty": _rgba(42, 32, 27, 0.48),
 		"fade": _rgba(239, 228, 201),
 		"scrim_in": _rgba(240, 228, 200, 0.2),
 		"scrim_out": _rgba(120, 96, 64, 0.42),
@@ -70,6 +73,16 @@ static func setup() -> void:
 		"title_bg": _rgba(244, 234, 210, 0.66),
 		"shadow": _rgba(255, 248, 230, 0.7),
 	}
+	_score_dark = _score.duplicate()
+	_score_dark.merge({
+		"fg": _rgba(240, 234, 216), "fg_dim": _rgba(240, 234, 216, 0.76),
+		"accent": _rgba(234, 208, 145), "accent_deep": _rgba(196, 164, 93),
+		"card": _rgba(18, 25, 48, 0.94), "card_edge": _rgba(217, 220, 236, 0.48),
+		"slot_empty": _rgba(217, 220, 236, 0.6), "fade": _rgba(16, 23, 43),
+		"plate_in": _rgba(12, 18, 38, 0.8), "plate_mid": _rgba(12, 18, 38, 0.5),
+		"scrim_in": _rgba(12, 18, 38, 0.22), "scrim_out": _rgba(8, 13, 28, 0.7),
+		"title_bg": _rgba(12, 18, 38, 0.66), "shadow": _rgba(0, 0, 0, 0.8),
+	}, true)
 	display = load("res://assets/fonts/CormorantGaramond-Medium.woff2")
 	display_i = load("res://assets/fonts/CormorantGaramond-MediumItalic.woff2")
 	var fr: FontFile = load("res://assets/fonts/Fraunces-Variable.woff2")
@@ -134,7 +147,8 @@ static func _rgba(r: int, g: int, b: int, a := 1.0) -> Color:
 
 ## The current colour for a role, blended between the two worlds.
 static func c(role: String) -> Color:
-	return (_score[role] as Color).lerp(_stage[role], k)
+	var score: Dictionary = _score_dark if dark_page else _score
+	return (score[role] as Color).lerp(_stage[role], k)
 
 
 ## color-mix(in srgb, col p%, transparent)
@@ -206,13 +220,13 @@ static func baseline(font: Font, size: int, line_height: float) -> float:
 
 ## The HUD's text shadow: a soft dark blur on the Stage, a crisp light offset on the Score.
 static func shadow_text(ci: CanvasItem, font: Font, size: int, pos: Vector2, s: String, alpha := 1.0, w := -1.0, align := HORIZONTAL_ALIGNMENT_LEFT) -> void:
-	if k > 0.01:
+	if k > 0.01 or dark_page:
 		# 0 2px 10px rgba(0, 0, 0, 0.55): a faint haze, built from widening outlines.
-		var a := 0.55 * k * alpha
+		var a := 0.55 * (1.0 if dark_page else k) * alpha
 		for pass_i in 3:
 			var o: int = [20, 12, 6][pass_i]
 			ci.draw_string_outline(font, pos + Vector2(0, 2), s, align, w, size, o, Color(0, 0, 0, a * [0.035, 0.045, 0.055][pass_i]))
-	if k < 0.99:
+	if k < 0.99 and not dark_page:
 		ci.draw_string(font, pos + Vector2(0, 1), s, align, w, size, fade(_score["shadow"], (1.0 - k) * alpha))
 
 

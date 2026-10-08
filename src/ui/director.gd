@@ -63,6 +63,8 @@ func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		var kv: PackedStringArray = a.trim_prefix("--").split("=", true, 1)
 		_args[kv[0]] = kv[1] if kv.size() > 1 else "1"
+	if OS.has_feature("selftest") and not _args.has("selftest"):
+		_args["selftest"] = "flow"
 	_mobile = OS.has_feature("mobile")
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
@@ -242,7 +244,6 @@ func _begin_play(index: int, mode: String) -> void:
 	app.view.has_focus = false
 	app.view.orbit = Vector3.ZERO
 	var game := app.start_level(ids[index], mode if mode != "" else String(save.settings.startIn))
-	# Notes already found stay found, so a replay is about the ones still missing.
 	save.record(ids[index], game.level.notes.size())
 	app.input.enabled = true
 	app.input.flush()
@@ -255,7 +256,7 @@ func _begin_play(index: int, mode: String) -> void:
 	_audio("set_restored", [0, game.level.notes.size()])
 	_play_music()
 	intro.show_card(infos[index])
-	hud.quiet_until = Time.get_ticks_msec() + 3600
+	hud.quiet_until = Time.get_ticks_msec() + 2800
 	_fade_in()
 	level_started.emit(index)
 
@@ -357,7 +358,7 @@ func _complete() -> void:
 	_refresh_touch()
 	_ui("complete")
 	var last := index == ids.size() - 1
-	_audio("preload", ["ending" if last else SONGS.get(ids[index + 1], "title")])
+	_audio("preload_song", ["ending" if last else SONGS.get(ids[index + 1], "title")])
 	var notes: Array = []
 	for t in game.notes_taken:
 		notes.append(t)
@@ -407,6 +408,7 @@ func _begin_ending() -> void:
 	_ending_timer = 0.0
 	var total := total_notes()
 	var lines := UiOverlays.EndingLines.new()
+	lines.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	lines.lines = [
 		"The last note found its place.",
 		"The page and the stage were never two places.",
@@ -415,7 +417,7 @@ func _begin_ending() -> void:
 	]
 	var to_title := func() -> void: _fade_out(_show_title)
 	var credits := UiScreens.credits(_ctx({"on_back": to_title, "total": total}))
-	credits.set_anchors_preset(Control.PRESET_FULL_RECT)
+	credits.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	var holder := EndingCredits.new()
 	holder.director = self
 	holder.add_child(credits)
@@ -448,7 +450,7 @@ class EndingCredits:
 	func _process(_dt: float) -> void:
 		var p := UiStyle.ease(clampf((director._ending_timer - 27.0) / 2.4, 0.0, 1.0))
 		modulate.a = p
-		position.y = 30.0 * (1.0 - p)
+		position.y = 0.0 if UiStyle.reduce_motion else 30.0 * (1.0 - p)
 
 
 # ---------------------------------------------------------------- per frame
@@ -484,9 +486,13 @@ func _frame(dt: float) -> void:
 		var t := Time.get_ticks_msec() / 1000.0
 		if state == "title":
 			app.view.orbit = Vector3(sin(t * 0.11) * 0.22, sin(t * 0.07) * 0.06, 2.0)
+			if app.view.reduce_motion:
+				app.view.orbit = Vector3(0, 0, 2)
 		else:
 			_ending_timer += dt
 			app.view.orbit = Vector3(sin(t * 0.08) * 0.35, 0.12 + minf(_ending_timer * 0.004, 0.2), 6.0 + _ending_timer * 0.12)
+			if app.view.reduce_motion:
+				app.view.orbit = Vector3(0, 0.12, 6)
 	else:
 		app.input.consume_pause()
 		app.input.consume_switch()
@@ -503,6 +509,9 @@ func _on_events(events: Array) -> void:
 		match String(e.t):
 			"note":
 				_audio("set_restored", [e.count, e.total])
+				var rec := save.record(String(game.level.info.id), game.level.notes.size())
+				rec.notes[int(e.id)] = true
+				save.write()
 			"exit":
 				_complete_timer = 0.0
 			"death":
@@ -518,6 +527,7 @@ func _on_events(events: Array) -> void:
 
 ## The UI's colours follow the world, easing over half a second when it turns.
 func _update_world(dt: float) -> void:
+	UiStyle.dark_page = app.dark_page
 	var target := 1.0 if app.view.blend > 0.5 else 0.0
 	if target != _k_to:
 		_k_from = UiStyle.k
@@ -530,6 +540,7 @@ func _update_world(dt: float) -> void:
 
 
 func _snap_world() -> void:
+	UiStyle.dark_page = app.dark_page
 	_k_to = 1.0 if app.view.blend > 0.5 else 0.0
 	_k_from = _k_to
 	_k_t = 1.0
@@ -662,7 +673,7 @@ func _play_music() -> void:
 	# From the title, the next thing played is the movement Begin or Continue leads to.
 	if state == "title":
 		var next := save.next_movement(ids)
-		_audio("preload", [SONGS[ids[mini(next, ids.size() - 1)]]])
+		_audio("preload_song", [SONGS[ids[mini(next, ids.size() - 1)]]])
 
 
 func _haptic(ms: int, amplitude: float) -> void:
@@ -674,6 +685,7 @@ func _apply_settings() -> void:
 	var s := save.settings
 	_audio("set_volumes", [{"master": float(s.master), "music": float(s.music), "sfx": float(s.sfx)}])
 	app.view.reduce_motion = bool(s.reduceMotion)
+	UiStyle.reduce_motion = app.view.reduce_motion
 	hud.show_timer = bool(s.showTimer)
 	_set_quality(String(s.quality))
 

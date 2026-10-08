@@ -23,8 +23,8 @@ var _knob := Vector2.ZERO
 var _active := false
 var _jump_id := -1
 var _switch_id := -1
-var _page_t := 0.0
-var _stage_t := 1.0
+var _page_t := 1.0
+var _stage_t := 0.0
 
 
 func _init() -> void:
@@ -49,6 +49,11 @@ func _reset() -> void:
 		input.touch_x = 0.0
 		input.touch_y = 0.0
 		input.touch_jump = false
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_APPLICATION_PAUSED:
+		_reset()
 
 
 func jump_rect() -> Rect2:
@@ -134,7 +139,7 @@ func _stick_move(p: Vector2) -> void:
 
 
 func _process(dt: float) -> void:
-	var page_target := 1.0 if mode == "2d" else 0.0
+	var page_target := 1.0 if mode == "3d" else 0.0
 	_page_t = move_toward(_page_t, page_target, dt / 0.45)
 	_stage_t = move_toward(_stage_t, 1.0 - page_target, dt / 0.45)
 	if visible:
@@ -171,6 +176,8 @@ func _draw() -> void:
 		var k := lerpf(0.3, 1.0, UiStyle.ease(_stage_t)) * ss
 		var sz := Vector2(24, 24) * k
 		draw_texture_rect(UiStyle.stage_icon, Rect2(sc - sz / 2.0, sz), false, UiStyle.fade(fg, _stage_t))
+	var label := "Score" if mode == "3d" else "Stage"
+	UiStyle.text(self, UiStyle.display_i, 16, Vector2(sr.position.x - 8, sr.end.y + 7 + UiStyle.display_i.get_ascent(16)), label, fg, true, sr.size.x + 16, HORIZONTAL_ALIGNMENT_CENTER)
 
 
 func _draw_button(r: Rect2, down: bool) -> void:

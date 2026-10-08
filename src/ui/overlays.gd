@@ -4,7 +4,7 @@ extends RefCounted
 ## title card, the fade between scenes and the ending's lines.
 
 
-## The web build's .intro-card: movement, title, tempo and epigraph, shown for 4.6 s.
+## The web build's .intro-card: movement, title, tempo and epigraph, shown for 2.8 s.
 class IntroCard:
 	extends Control
 	var info: Dictionary = {}
@@ -22,17 +22,17 @@ class IntroCard:
 		t = 99.0
 
 	func showing() -> bool:
-		return t < 4.6
+		return t < 2.8
 
 	func _process(dt: float) -> void:
-		var was := t < 4.6
+		var was := t < 2.8
 		t += dt
-		if was or t < 4.6:
+		if was or t < 2.8:
 			queue_redraw()
 
 	## card-show: in over the first 14 %, held to 70 %, out by 100 %.
 	func _anim() -> Vector2:
-		var p := t / 4.6
+		var p := t / 2.8
 		if p >= 1.0:
 			return Vector2(0, -6)
 		if p < 0.14:
@@ -44,9 +44,11 @@ class IntroCard:
 		return Vector2(1.0 - q2, -6.0 * q2)
 
 	func _draw() -> void:
-		if t >= 4.6 or info.is_empty():
+		if t >= 2.8 or info.is_empty():
 			return
 		var an := _anim()
+		if UiStyle.reduce_motion:
+			an.y = 0.0
 		var a := an.x
 		var y := 0.22 * size.y + an.y
 		var w := size.x
@@ -61,7 +63,8 @@ class IntroCard:
 		y += UiStyle.display_i.get_ascent(22)
 		UiStyle.text(self, UiStyle.display_i, 22, Vector2(0, y), info.tempo, UiStyle.fade(UiStyle.c("accent"), a), true, w, HORIZONTAL_ALIGNMENT_CENTER)
 		y += UiStyle.display_i.get_descent(22) + 14.0 + UiStyle.body_i.get_ascent(16)
-		UiStyle.text(self, UiStyle.body_i, 16, Vector2(0, y), info.epigraph, dimc, true, w, HORIZONTAL_ALIGNMENT_CENTER)
+		if size.y > 480.0:
+			UiStyle.text(self, UiStyle.body_i, 16, Vector2(0, y), info.epigraph, dimc, true, w, HORIZONTAL_ALIGNMENT_CENTER)
 
 
 ## The curtain between scenes, in the world's fade colour (CSS transition: ease).
@@ -124,11 +127,11 @@ class EndingLines:
 			return Vector2(0, 0)
 		if p < 0.2:
 			var q := UiStyle.ease(p / 0.2)
-			return Vector2(q, 12.0 * (1.0 - q))
+			return Vector2(q, 0.0 if UiStyle.reduce_motion else 12.0 * (1.0 - q))
 		if p < 0.78:
 			return Vector2(1, 0)
 		var q2 := UiStyle.ease((p - 0.78) / 0.22)
-		return Vector2(1.0 - q2, -8.0 * q2)
+		return Vector2(1.0 - q2, 0.0 if UiStyle.reduce_motion else -8.0 * q2)
 
 	func _draw() -> void:
 		var fs := roundi(clampf(0.046 * size.y, 26.0, 44.0))

@@ -23,6 +23,8 @@ var _pad_x := 0.0
 var _pad_y := 0.0
 var _pad_jump := false
 var _axis_prev := Vector2.ZERO
+var _triggers := {}
+var _suspended := false
 
 const LEFT := [KEY_LEFT, KEY_A]
 const RIGHT := [KEY_RIGHT, KEY_D]
@@ -47,6 +49,8 @@ func _set_device(d: String) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if _suspended:
+		return
 	if event is InputEventScreenTouch and event.pressed:
 		_set_device("touch")
 	elif event is InputEventKey:
@@ -103,26 +107,38 @@ func _input(event: InputEvent) -> void:
 					nav.emit("right")
 	elif event is InputEventJoypadMotion:
 		if event.axis == JOY_AXIS_TRIGGER_LEFT or event.axis == JOY_AXIS_TRIGGER_RIGHT:
-			if event.axis_value > 0.6:
+			var trigger := "%d:%d" % [event.device, event.axis]
+			var previous: float = _triggers.get(trigger, 0.0)
+			if event.axis_value > 0.6 and previous <= 0.6:
 				_switch_latch = true
+			_triggers[trigger] = event.axis_value
 		elif absf(event.axis_value) > 0.4:
 			_set_device("gamepad")
 
 
 ## The Android back gesture arrives as a window notification, not a key.
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_APPLICATION_PAUSED:
+		_suspended = true
+		reset()
+	elif what == NOTIFICATION_APPLICATION_FOCUS_IN or what == NOTIFICATION_APPLICATION_RESUMED:
+		_suspended = false
+	elif what == NOTIFICATION_WM_GO_BACK_REQUEST:
 		_pause_latch = true
 		nav.emit("back")
 		nav.emit("pause")
 
 
 func _process(_delta: float) -> void:
+	if _suspended:
+		return
 	var pads := Input.get_connected_joypads()
 	if pads.is_empty():
 		_pad_x = 0.0
 		_pad_y = 0.0
 		_pad_jump = false
+		_axis_prev = Vector2.ZERO
+		_triggers.clear()
 		return
 	var id: int = pads[0]
 	var ax := _deadzone(Input.get_joy_axis(id, JOY_AXIS_LEFT_X))
@@ -186,10 +202,23 @@ func flush() -> void:
 	_pause_latch = false
 
 
+func reset() -> void:
+	_keys.clear()
+	_pad_x = 0.0
+	_pad_y = 0.0
+	_pad_jump = false
+	_axis_prev = Vector2.ZERO
+	_triggers.clear()
+	touch_x = 0.0
+	touch_y = 0.0
+	touch_jump = false
+	flush()
+
+
 ## Builds one simulation frame: [move_x, move_z, jump_held, jump_pressed, switch_pressed].
 ## Presses are handed out once.
 func frame() -> Array:
-	if not enabled:
+	if not enabled or _suspended:
 		return [0.0, 0.0, false, false, false]
 	var x := (1.0 if _any(RIGHT) else 0.0) - (1.0 if _any(LEFT) else 0.0)
 	var z := (1.0 if _any(UP) else 0.0) - (1.0 if _any(DOWN) else 0.0)

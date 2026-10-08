@@ -17,6 +17,9 @@ var _arrive: Array[float] = []
 var _mode := "3d"
 var _device := "keyboard"
 var _play_time := 0.0
+var _found := 0
+var _notice := ""
+var _notice_until := 0.0
 var _shown := false
 var _alpha := 0.0
 ## Badge icons: page and stage visibility, 0..1, eased towards the current mode.
@@ -56,6 +59,10 @@ func set_level(game: Sim) -> void:
 		_slots.append(game.notes_taken[i])
 		_arrive.append(9.0)
 	_fly.clear()
+	_notice = ""
+	_notice_until = 0.0
+	quiet_until = 0
+	_found = game.notes_count()
 	_hint_id = ""
 	_hint_on = false
 	_hint_t = 0.0
@@ -81,15 +88,19 @@ func update(game: Sim, device: String) -> void:
 	_mode = game.mode
 	_device = device
 	_play_time = game.play_time
+	_found = game.notes_count()
 	var id := ""
 	var quiet := Time.get_ticks_msec() < quiet_until
 	if game.active_sign != null and not quiet and not game.finished and game.player.dead <= 0.0:
 		id = String(game.active_sign.hint)
+	var notice := _notice if game.time < _notice_until else ""
+	if notice != "" and not quiet and not game.finished and game.player.dead <= 0.0:
+		id = notice
 	if id != _hint_id or device != _hint_device:
 		_hint_id = id
 		_hint_device = device
 		if id != "":
-			_hint = Hints.text(id, device)
+			_hint = notice if notice != "" else Hints.text(id, device)
 			_hint_on = true
 		else:
 			_hint_on = false
@@ -98,7 +109,19 @@ func update(game: Sim, device: String) -> void:
 func on_events(events: Array, game: Sim, view: View) -> void:
 	for e in events:
 		if e.t == "note":
-			_fly_note(int(e.id), game, view)
+			if view.reduce_motion:
+				_slots[int(e.id)] = true
+			else:
+				_fly_note(int(e.id), game, view)
+			if int(e.count) == int(e.total):
+				_notice = "All seven notes restored. Find the fermata arch."
+				_notice_until = game.time + 4.5
+		elif e.t == "checkpoint":
+			_notice = "Your place is kept at this metronome."
+			_notice_until = game.time + 2.5
+		elif e.t == "respawn":
+			_notice = "A fresh start. Your notes are safe."
+			_notice_until = game.time + 2.5
 		elif e.t == "switch":
 			_pulse = 0.0
 
@@ -118,7 +141,7 @@ func _layout() -> void:
 	var st := safe.y
 	var sr := safe.z
 	var tw := UiStyle.width(_title_font(), 19, _title)
-	var w := 14.0 + maxf(tw, 7.0 * 19.8 + 18.0) + 34.0
+	var w := 14.0 + maxf(tw, 7.0 * 22.8 + 52.0) + 34.0
 	_left = Rect2(sl + 8.0, st + 8.0, w, 10.0 + _title_lh() + 4.0 + 29.2 + 14.0)
 	var bw := 9.0 + 22.0 + 10.0 + UiStyle.width(UiStyle.display_i, 18, _badge_label()) + 14.0 + 2.0
 	var key := _badge_key()
@@ -211,7 +234,7 @@ func _draw() -> void:
 		var r := slot_rect(i)
 		var col := gold if _slots[i] else empty
 		var t := _arrive[i]
-		if t < 0.7:
+		if t < 0.7 and not UiStyle.reduce_motion:
 			# slot-arrive: from scale 1.8 turned -12 degrees, through 0.9, back to rest.
 			var s := 1.0
 			var rot := 0.0
@@ -228,6 +251,8 @@ func _draw() -> void:
 		else:
 			UiStyle.draw_glyph_shadowed(self, r, col)
 	_draw_badge(a)
+	var count := "%d / %d" % [_found, _slots.size()]
+	UiStyle.text(self, UiStyle.body, 12, Vector2(slot_rect(0).position.x + _slots.size() * 22.8 + 9, slot_rect(0).position.y + 18), count, fg, true)
 	_draw_pause(a)
 	if show_timer:
 		var tm := UiStyle.fmt_time(_play_time)
@@ -244,7 +269,7 @@ func _draw() -> void:
 func _draw_badge(a: float) -> void:
 	var r := _badge
 	var pulse := 1.0
-	if _pulse < 0.7:
+	if _pulse < 0.7 and not UiStyle.reduce_motion:
 		var p := _pulse / 0.7
 		pulse = 1.0 + 0.12 * (UiStyle.ease(p / 0.3) if p < 0.3 else 1.0 - UiStyle.ease((p - 0.3) / 0.7))
 	draw_set_transform(r.get_center(), 0.0, Vector2.ONE * pulse)

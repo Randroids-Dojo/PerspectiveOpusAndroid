@@ -25,6 +25,7 @@ var palettes: Dictionary
 var level_id := ""
 var paused := false
 var quality := "medium"
+var dark_page := false
 var _acc := 0.0
 var _now := 0.0
 var _frames := 0
@@ -72,6 +73,7 @@ func start_level(id: String, mode: String, palette_override: String = "") -> Sim
 	var lv := Level.load_id(id)
 	game = Sim.new(lv, mode)
 	var pal: Dictionary = palettes[palette_override if palette_override != "" else String(lv.info.palette)]
+	dark_page = bool(pal.inverted)
 	stage.load_level(game, pal)
 	page.load_level(game, pal)
 	view.snap(game)
@@ -143,4 +145,7 @@ func _process(delta: float) -> void:
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(_args.shot)
 		print("SHOT ", _args.shot)
+		paused = true
+		if audio and audio.has_method("prepare_quit"):
+			await audio.prepare_quit()
 		get_tree().quit()
