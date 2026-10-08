@@ -56,6 +56,41 @@ def db(v):
     return float(20 * np.log10(max(float(v), 1e-10)))
 
 
+def check_loop(x, sr, info, start):
+    """The pass after the loop wrap against the same music one pass earlier."""
+    from scipy.signal import correlate
+
+    fsr = info["sr"]
+    body = info["bodyFrames"] / fsr
+    wrap = info["frames"] / fsr
+    # Where the song starts in the capture: the first sound after its mark.
+    i0 = int(start["t"] * sr)
+    env = np.max(np.abs(x[i0 : i0 + 2 * sr]), axis=1)
+    t0 = start["t"] + np.argmax(env > 1e-3) / sr
+    print(f"\nloop: file {wrap:.3f} s, loop of {body:.3f} s from {info['loopStart'] / fsr:.3f} s; song heard from {t0:.3f} s")
+    mono = np.sum(x, 1)
+    win = int(0.5 * sr)
+    worst = -200.0
+    for off in [-3.0, -1.0, -0.25, 0.0, 0.25, 1.0, 3.0]:
+        a = int((t0 + wrap + off) * sr)
+        b = int((t0 + wrap + off - body) * sr)
+        # The two passes drift by Godot's resampler rounding (about 15 ppm): align within 200 frames.
+        y = mono[a - win // 2 : a + win // 2]
+        r = mono[b - win // 2 - 200 : b + win // 2 + 200]
+        c = correlate(r, y, "valid", method="fft")
+        k = int(np.argmax(c))
+        rr = r[k : k + len(y)]
+        res = 10 * np.log10(np.sum((y - rr) ** 2) / max(np.sum(rr**2), 1e-12))
+        worst = max(worst, res)
+        print(f"  {off:+5.2f} s from the wrap: lag {k - 200:+4d} frames, difference from one pass earlier {res:6.1f} dB")
+    # A click at the wrap would stand out in the sample-to-sample steps.
+    a = int((t0 + wrap) * sr)
+    d = np.abs(np.diff(mono[a - sr : a + sr]))
+    dd = np.abs(np.diff(mono[int((t0 + wrap - body) * sr) - sr : int((t0 + wrap - body) * sr) + sr]))
+    print(f"  largest step within 1 s of the wrap {np.max(d):.4f}, same place one pass earlier {np.max(dd):.4f}")
+    print(f"  worst difference {worst:.1f} dB")
+
+
 def main():
     x, sr = sf.read(sys.argv[1], dtype="float64", always_2d=True)
     marks = json.load(open(sys.argv[2]))["marks"]
@@ -68,6 +103,10 @@ def main():
     st = blocks(kweight(x, sr), sr, int(3 * sr), int(1 * sr))
     print(f"short-term loudness {np.min(st[st > -70]):.1f} .. {np.max(st):.1f} LUFS")
 
+    loop = [m for m in marks if m["kind"] == "loop"]
+    if loop:
+        check_loop(x, sr, loop[0], [m for m in marks if m["kind"] == "song"][0])
+        return
     songs = [m for m in marks if m["kind"] in ("song", "stop")]
     steady = not any(m["kind"] == "event" for m in marks)
     win = int(0.1 * sr)

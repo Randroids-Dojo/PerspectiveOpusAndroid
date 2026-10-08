@@ -10,6 +10,10 @@ extends Node
 ##       36 s from the start on the stage, switching to the page at 6 and 22 s and back at 14 and
 ##       30 s (0.8 s linear glides, the game's slow-down), all notes found and then three, effects
 ##       off: the scenario `tools/render_audio.ts --only=reference` renders with the web build
+##   $GODOT --path . res://src/audio/dev/audio_test.tscn -- --loop=finale
+##       one song, all notes, both worlds at half (equal power), effects off, through its intro
+##       and past its first loop wrap (analyze_capture.py compares the passes either side)
+##   --timeline=<path> writes the timeline there instead of user://audio_test.json
 ##
 ## Add `--write-movie /tmp/tour.avi --fixed-fps 60` (before the `--`) to capture what
 ## Godot actually mixed; tools/audio/analyze_capture.py measures it. A timeline of
@@ -48,7 +52,18 @@ func _ready() -> void:
 		# Tuning only: the master compressor's threshold.
 		(AudioServer.get_bus_effect(0, 0) as AudioEffectCompressor).threshold = float(args["comp-threshold"])
 	steady = String(args.get("steady", ""))
-	if args.has("switches"):
+	if args.has("loop"):
+		var id := String(args.loop)
+		var info: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://assets/audio/audio.json")).songs[id]
+		# Past the wrap by a few seconds.
+		args["seconds"] = str(float(info.frames) / float(info.sr) + 6.0)
+		audio.set_volumes(1.0, 1.0, 0.0)
+		steady_runs.append([id, 0.5, 7])
+		songs.append(id)
+		steady = "loop"
+		linear = true
+		_mark("loop", {"id": id, "sr": float(info.sr), "loopStart": float(info.loopStart), "bodyFrames": float(info.bodyFrames), "frames": float(info.frames)})
+	elif args.has("switches"):
 		linear = true
 		audio.set_volumes(1.0, 1.0, 0.0)
 		for id in String(args.switches).split(","):
@@ -104,7 +119,7 @@ func _next_song() -> void:
 		audio.set_restored(run[2], 7)
 		audio.play_song(id)
 		_mark("song", {"id": id, "blend": blend, "restored": run[2]})
-		if linear:
+		if linear and steady != "loop":
 			for at in [6.0, 14.0, 22.0, 30.0]:
 				plan.append([at, func() -> void: _switch(false)])
 		return
@@ -211,9 +226,10 @@ func _log(what: String) -> void:
 func _finish() -> void:
 	var s := audio.stats()
 	print("tour done: %d sounds played, %d stolen, %d dropped" % [s.played, s.stolen, s.dropped])
-	var f := FileAccess.open("user://audio_test.json", FileAccess.WRITE)
+	var path := String(args.get("timeline", "user://audio_test.json"))
+	var f := FileAccess.open(path, FileAccess.WRITE)
 	f.store_string(JSON.stringify({"marks": marks, "stats": s}))
 	f.close()
-	print("timeline: ", ProjectSettings.globalize_path("user://audio_test.json"))
+	print("timeline: ", ProjectSettings.globalize_path(path))
 	await audio.prepare_quit()
 	get_tree().quit()

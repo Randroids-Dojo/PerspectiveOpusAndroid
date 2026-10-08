@@ -11,16 +11,16 @@ The web build makes every sound live in Web Audio. Here the same engine is run o
 $GODOT --headless --path . --import
 ```
 
-`tools/render_audio.ts` starts Vite on the web repo, loads `tools/audio/harness.ts` in headless Chrome and drives the web build's own songs, players, mixer, rooms, instruments and effects through `OfflineAudioContext`s. `tools/audio/encode.py` encodes Ogg Vorbis with libvorbis (through libsndfile in a throwaway `uv` environment; Homebrew's ffmpeg only has the experimental native Vorbis encoder) and decodes every file again to check its length and loop seam. Everything is 32 kHz (the instruments themselves are rendered at 22 to 32 kHz).
+`tools/render_audio.ts` starts Vite on the web repo, loads `tools/audio/harness.ts` in headless Chrome and drives the web build's own songs, players, mixer, rooms, instruments and effects through `OfflineAudioContext`s. `tools/audio/encode.py` encodes Ogg Vorbis with libvorbis (through libsndfile in a throwaway `uv` environment; Homebrew's ffmpeg only has the experimental native Vorbis encoder) and decodes every file again to check its length and loop seam. Renders run at 48 kHz, the web build's own context rate (its rooms are noise impulse responses normalised per sample, so at 32 kHz they would come out about 1.8 dB weaker), and are downsampled to 32 kHz files with real context either side of every loop point. Effect sounds are stored 6 dB under unit velocity and scaled back by the engine.
 
 `assets/audio/audio.json` describes it all: songs (stems, frames, loop point, tempo maps and chord timelines), the harmonies, the effect recipes, the voices and one-shots they play, the ambience beds and events, and the web desk's measured master chain.
 
 | What | Files | Size |
 | --- | --- | --- |
-| Music stems, stereo, `music/<song>/<arr>_<layer>.ogg` | 92 | 39.3 MB |
-| Notes the effects play (with their room or hall), `notes/` | 485 | 8.1 MB |
-| One-shot effects (steps by material, jumps, page turns...), `sfx/` | 128 | 1.6 MB |
-| Ambience beds and events, `amb/` | 31 | 1.6 MB |
+| Music stems, stereo, `music/<song>/<arr>_<layer>.ogg` | 92 | 38.5 MB |
+| Notes the effects play (with their room or hall), `notes/` | 485 | 7.5 MB |
+| One-shot effects (steps by material, jumps, page turns...), `sfx/` | 128 | 1.5 MB |
+| Ambience beds and events, `amb/` | 31 | 1.7 MB |
 
 ### Music
 
@@ -46,9 +46,12 @@ audio.ui(name)                          # hover, confirm, back, pause, resume, s
 audio.set_volumes(master, music, sfx)   # or set_volumes({master, music, sfx}); faders 0..1, squared
 audio.set_paused(paused)                # muffles the music, quietens the ambience
 audio.stats() -> Dictionary             # diagnostics
+await audio.prepare_quit()              # before get_tree().quit(): nothing left playing or loaded
 ```
 
-Buses (made in code): `Master` (the web desk's compressor and limiter with the makeup gain Web Audio adds, then a hard limiter), `Music` (low pass for menus and switches, a reverb for the switch swell), `Ambience` (`AmbLeft`, `AmbCentre`, `AmbRight` pan the events), `Sfx` (`SfxPage`, `SfxStage`, `UI`).
+Buses (made in code): `Master` (the web desk's compressor and limiter with the makeup gain Web Audio adds, measured in Chrome, then a hard limiter), `Music` (level, menu dip, ducks) fed by `MusicScore` and `MusicStage`, `Ambience` (`AmbLeft`, `AmbCentre`, `AmbRight` pan the events), `Sfx` (`SfxPage`, `SfxStage`, `UI`).
+
+Each arrangement plays in its own `AudioStreamSynchronized` on its own bus (both started in one mix): a low pass for menus and switches, then a Godot reverb shaped like that world's room. The stems carry the steady room; the reverb adds what baked stems cannot: during a switch the web build raises its room sends to 1 + 1.5w (matched in energy with sqrt((1 + 1.5w)^2 - 1)), and the world being left keeps ringing in its room after its sound fades.
 
 ## Checking
 
@@ -61,4 +64,6 @@ uv run --no-project --with soundfile --with numpy --with scipy python tools/audi
   "$HOME/Library/Application Support/Godot/app_userdata/Perspective Opus/audio_test.json"
 ```
 
-`audio_test.tscn -- --steady=overture,finale` plays each song from its start in the conditions of the web build's `scripts/audio-render.ts --levels` (score and stage, all notes and none) so the loudness can be compared.
+`audio_test.tscn -- --steady=overture,finale` plays each song from its start in the conditions of the web build's `scripts/audio-render.ts --levels` (score and stage, all notes and none) so the loudness can be compared. `-- --switches=overture,finale` plays the switch scenario that `tools/render_audio.ts --only=reference --songs=overture,finale` renders with the web build itself; `tools/audio/compare_reference.py` lines the two up. `-- --loop=finale` plays through the intro and past the first loop wrap; `analyze_capture.py` compares the passes either side of it. Add `--timeline=/tmp/x.json` to run several captures at once.
+
+Measured on the shipped files: all 28 steady conditions within 0.2 dB of the web build's loudness; the switch scenario within 0.3 dB overall, with the momentary loudness through each switch within 3.2 dB of the web's (typically 1 to 2); stems of a song keep a 0 s position spread over three loops; finale's wrap shows no step or lag change against the same music a pass earlier; no clipping (peaks near -3.5 dBFS at the loudest).
