@@ -16,6 +16,7 @@ import numpy as np
 import soundfile as sf
 from scipy.signal import correlate
 
+sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.dirname(__file__))
 from analyze_capture import blocks, kweight, lufs  # noqa: E402
 
