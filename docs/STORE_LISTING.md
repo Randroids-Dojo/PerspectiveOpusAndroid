@@ -1,6 +1,6 @@
 # Google Play listing
 
-Package: `games.toyboxes.perspectiveopus`. Category: Game, Puzzle. Free, no ads, no in-app purchases.
+Package: `app.toyboxes.perspectiveopus`. Category: Game, Puzzle. Free, no ads, no in-app purchases.
 
 ## App name (30 max)
 
