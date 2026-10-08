@@ -101,6 +101,8 @@ func _exit_tree() -> void:
 	if _env != null:
 		_env.cache.clear()
 	PagePainter.release_shared()
+	PageDecor.release_shared()
+	PageEntities.release_shared()
 
 
 # ---------------------------------------------------------------- the renderer contract

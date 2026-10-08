@@ -48,6 +48,11 @@ class Drawable:
 static var _sk := PageSketch.new()
 
 
+## Drops the shared sketch, which holds on to the last page's environment.
+static func release_shared() -> void:
+	_sk = PageSketch.new()
+
+
 static func layer_of(env: PageEnv, z: float) -> int:
 	return clampi(floori(z), 0, env.world.d - 1)
 

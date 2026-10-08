@@ -9,6 +9,11 @@ enum { STATIC, LIVE, ALL }
 const FLOWER_COLS := ["#b2362b", "#d6a33a", "#4f6fbf", "#f4eee2", "#c0609a", "#e07a3a"]
 
 static var _sk := PageSketch.new()
+
+
+## Drops the shared sketch, which holds on to the last page's environment.
+static func release_shared() -> void:
+	_sk = PageSketch.new()
 ## Gears are recorded without their sheen at rotation zero and turned when replayed:
 ## 0 draws the whole gear, 1 only the turning parts at rotation zero, 2 only the sheen.
 static var gear_part := 0
