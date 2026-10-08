@@ -283,10 +283,6 @@ func _draw_world_icon(box: Rect2, col: Color, s: float) -> void:
 		draw_texture_rect(UiStyle.stage_icon, Rect2(c - sz / 2.0, sz), false, scol)
 
 
-func icon_progress() -> Vector2:
-	return Vector2(_page_t, _stage_t)
-
-
 func _draw_pause(a: float) -> void:
 	var r := _pause
 	var dev_a := 0.6 if _device != "touch" else 1.0
@@ -371,10 +367,6 @@ func _draw_fly(fl: Dictionary, a: float) -> void:
 	gold.a *= a * op
 	UiStyle.draw_glyph(self, Rect2(pos - sz / 2.0 - Vector2(4, 4), sz + Vector2(8, 8)), Color(1.0, 0.82, 0.47, 0.35 * a * op))
 	UiStyle.draw_glyph(self, Rect2(pos - sz / 2.0, sz), gold)
-
-
-func flying() -> int:
-	return _fly.size()
 
 
 # ---------------------------------------------------------------- input

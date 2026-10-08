@@ -137,14 +137,6 @@ static func c(role: String) -> Color:
 	return (_score[role] as Color).lerp(_stage[role], k)
 
 
-static func stage_c(role: String) -> Color:
-	return _stage[role]
-
-
-static func score_c(role: String) -> Color:
-	return _score[role]
-
-
 ## color-mix(in srgb, col p%, transparent)
 static func fade(col: Color, p: float) -> Color:
 	return Color(col.r, col.g, col.b, col.a * p)
@@ -218,8 +210,8 @@ static func shadow_text(ci: CanvasItem, font: Font, size: int, pos: Vector2, s: 
 		# 0 2px 10px rgba(0, 0, 0, 0.55): a faint haze, built from widening outlines.
 		var a := 0.55 * k * alpha
 		for pass_i in 3:
-			var o: int = [16, 10, 5][pass_i]
-			ci.draw_string_outline(font, pos + Vector2(0, 2), s, align, w, size, o, Color(0, 0, 0, a * [0.07, 0.08, 0.1][pass_i]))
+			var o: int = [20, 12, 6][pass_i]
+			ci.draw_string_outline(font, pos + Vector2(0, 2), s, align, w, size, o, Color(0, 0, 0, a * [0.035, 0.045, 0.055][pass_i]))
 	if k < 0.99:
 		ci.draw_string(font, pos + Vector2(0, 1), s, align, w, size, fade(_score["shadow"], (1.0 - k) * alpha))
 
@@ -245,17 +237,6 @@ static func draw_glyph_shadowed(ci: CanvasItem, rect: Rect2, col: Color) -> void
 	if k < 0.99:
 		draw_glyph(ci, Rect2(rect.position + Vector2(0, 1), rect.size), fade(_score["shadow"], (1.0 - k) * col.a))
 	draw_glyph(ci, rect, col)
-
-
-## A radial gradient with CSS `ellipse farthest-corner` sizing over `box`, centred at
-## `at` (fractions of the box). Stops: [[offset, Color], ...]. Colours interpolate
-## linearly between rings placed exactly at the stops, like the browser.
-static func radial(ci: CanvasItem, box: Rect2, at: Vector2, stops: Array, segs := 40) -> void:
-	var cx := box.position.x + box.size.x * at.x
-	var cy := box.position.y + box.size.y * at.y
-	var rx := maxf(cx - box.position.x, box.end.x - cx) * sqrt(2.0)
-	var ry := maxf(cy - box.position.y, box.end.y - cy) * sqrt(2.0)
-	ellipse(ci, Vector2(cx, cy), Vector2(rx, ry), stops, segs)
 
 
 ## A CSS radial-gradient background: `ellipse farthest-corner at <at>`, painted only
@@ -293,6 +274,8 @@ static func _stop_color(stops: Array, d: float) -> Color:
 	return stops[stops.size() - 1][1]
 
 
+## A radial gradient filling an ellipse. Stops: [[offset, Color], ...] from the centre
+## (0) to the rim (1), on rings placed exactly at the stops.
 static func ellipse(ci: CanvasItem, center: Vector2, radii: Vector2, stops: Array, segs := 40) -> void:
 	var pts := PackedVector2Array()
 	var cols := PackedColorArray()
