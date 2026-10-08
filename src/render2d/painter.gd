@@ -95,6 +95,20 @@ func free_items() -> void:
 	used = 0
 	prev_used = 0
 	cur = RID()
+	cur_kind = -1
+	_clear_batch()
+	_lp.clear()
+	_lc.clear()
+	_rec = []
+
+
+## Drops the shared materials and the dot texture (when the page leaves for good).
+static func release_shared() -> void:
+	_premul = null
+	_mul = null
+	_clip_shader = null
+	_clip_premul_shader = null
+	_dot_tex = null
 
 
 func begin() -> void:
@@ -615,18 +629,51 @@ func seg(x0: float, y0: float, x1: float, y1: float, w: float, c: Color) -> void
 	lines(PackedVector2Array([Vector2(x0, y0), Vector2(x1, y1)]), w, c)
 
 
-## Strokes every subpath of a path.
+## Strokes every subpath of a path. Thin strokes go out as one native multiline.
 func stroke_path(path: PagePath, w: float, c: Color) -> void:
+	if not _recording and not has_xf and w <= 2.6:
+		var pairs := PackedVector2Array()
+		var n := path.count()
+		for s in n:
+			var a := path.starts[s]
+			var e := path.pts.size() if s + 1 >= n else path.starts[s + 1]
+			for q in range(a, e - 1):
+				pairs.append(path.pts[q])
+				pairs.append(path.pts[q + 1])
+			if path.closed[s] != 0 and e - a > 2:
+				pairs.append(path.pts[e - 1])
+				pairs.append(path.pts[a])
+		lines(pairs, w, c)
+		return
 	for s in path.count():
 		var sp := path.subpath(s)
 		if sp.size() >= 2:
 			stroke(sp, w, c, path.is_closed(s))
 
 
-## A nib ribbon along points.
-func ribbon(pts: PackedVector2Array, w: float, seed: int, c: Color, taper: float = 0.5) -> void:
+## A nib ribbon along points. With a window, only the part inside it is built (long
+## outline runs crossing a chunk).
+func ribbon(pts: PackedVector2Array, w: float, seed: int, c: Color, taper: float = 0.5, window: Rect2 = Rect2()) -> void:
 	var s := PageInk.ribbon(pts, w, seed, taper)
-	strip(s[0], s[1], c)
+	var A: PackedVector2Array = s[0]
+	var B: PackedVector2Array = s[1]
+	if window.size.x > 0.0 and A.size() > 8:
+		var n := A.size()
+		var i0 := -1
+		var i1 := -1
+		for i in n:
+			if window.has_point(pts[i]):
+				if i0 < 0:
+					i0 = i
+				i1 = i
+		if i0 < 0:
+			return
+		i0 = maxi(0, i0 - 1)
+		i1 = mini(n - 1, i1 + 1)
+		if i0 > 0 or i1 < n - 1:
+			A = A.slice(i0, i1 + 1)
+			B = B.slice(i0, i1 + 1)
+	strip(A, B, c)
 
 
 ## A closed ribbon (an outline) round a point loop.

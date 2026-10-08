@@ -422,25 +422,54 @@ func _draw_tails(pt: PagePainter, p: PageEnv.Proj, env: PageEnv, sh: Shape) -> v
 		pt.stroke(outline, maxf(0.8, 1.1 * p.px), PageTones.alpha(T.ink, 0.8), true)
 
 
-## A small hatched shadow on whatever Quaver stands over.
-func _contact_shadow(pt: PagePainter, p: PageEnv.Proj, env: PageEnv, game: Sim) -> void:
+## The surface directly below a point, including moving stands, gates and drums (the web
+## build's render/ground.ts): the page's projected columns, or the voxels at the player's
+## depth on the stage or when embedded. NAN when there is none.
+static func ground_below(game: Sim, px: float, py: float, pz: float) -> float:
 	var lv := game.level
-	var cx := floori(x)
-	var gy := -1
-	var yy := floori(y + 0.01)
-	while yy >= maxi(0, floori(y) - 5):
-		if cx >= 0 and cx < lv.w and yy - 1 >= 0 and yy - 1 < lv.h and lv.front[cx + lv.w * (yy - 1)] != Level.NO_DEPTH:
-			gy = yy
-			break
-		yy -= 1
-	if gy < 0:
+	var x := floori(px)
+	var z := floori(pz)
+	var projected := game.mode == "2d" and not game.player.embedded
+	var best := NAN
+	if x >= 0 and x < lv.w and (projected or (z >= 0 and z < lv.d)):
+		var y := mini(lv.h - 1, floori(py - 0.04))
+		while y >= 0:
+			var solid := lv.front[x + lv.w * y] != Level.NO_DEPTH if projected else Level.is_solid_mat(lv.cells[x + lv.w * (y + lv.h * z)])
+			if solid:
+				best = y + 1.0
+				break
+			y -= 1
+	for b in game.bodies:
+		if not b.solid or b.max.y > py + 0.08:
+			continue
+		if px < b.min.x or px > b.max.x:
+			continue
+		if not projected and (pz < b.min.z or pz > b.max.z):
+			continue
+		best = b.max.y if is_nan(best) else maxf(best, b.max.y)
+	return best
+
+
+## A small hatched shadow on whatever Quaver stands over and, while airborne, a faint gold
+## ring marking where Quaver will land.
+func _contact_shadow(pt: PagePainter, p: PageEnv.Proj, env: PageEnv, game: Sim) -> void:
+	var gy := ground_below(game, x, y, z)
+	if is_nan(gy):
 		return
 	var hgt := y - gy
-	if hgt > 4.0:
+	if hgt > 8.0:
 		return
-	var s := 1.0 - hgt / 4.0
-	var e := PageInk.arc_pts(p.ox + x * p.k, p.oy - gy * p.k + 0.02 * p.k, p.k * 0.34 * (0.5 + 0.5 * s), p.k * 0.06 * (0.5 + 0.5 * s), 0, 0, TAU, false, 3.0)
-	env.pat(pt, e, PageEnv.CROSS, 0.8 * s, p)
+	var s := maxf(0.0, 1.0 - hgt / 4.0)
+	if s > 0.0:
+		var e := PageInk.arc_pts(p.ox + x * p.k, p.oy - gy * p.k + 0.02 * p.k, p.k * 0.34 * (0.5 + 0.5 * s), p.k * 0.06 * (0.5 + 0.5 * s), 0, 0, TAU, false, 3.0)
+		e.resize(e.size() - 1)
+		env.pat(pt, e, PageEnv.CROSS, 0.8 * s, p)
+	if not game.player.grounded and not game.finished:
+		var a := 0.8 * minf(1.0, hgt * 3.0) * maxf(0.0, 1.0 - hgt / 10.0)
+		if a > 0.0:
+			var ring := PageInk.arc_pts(p.ox + x * p.k, p.oy - gy * p.k, p.k * 0.3, p.k * 0.065, 0, 0, TAU, false, 3.0)
+			ring.resize(ring.size() - 1)
+			pt.stroke(ring, maxf(1.0, 1.2 * p.px), PageTones.alpha(env.tones.gold, a), true)
 
 
 ## Splits a polyline into dashes (ctx.setLineDash), the pattern restarting per polyline.

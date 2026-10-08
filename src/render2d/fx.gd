@@ -348,12 +348,7 @@ func ambient(pt: PagePainter, dt: float, cam_x: float, cam_y: float, ppu: float,
 				var s := a.size
 				var sx := cos(a.rot)
 				var xf := Transform2D(a.rot * 0.4, Vector2(a.x, a.y)) * Transform2D(Vector2(maxf(0.2, absf(sx)), 0), Vector2(0, 1), Vector2.ZERO)
-				var pa := PagePath.new()
-				pa.seg_px = 1.5
-				pa.move_to(-s, 0)
-				pa.quad_to(0, -s * 0.55, s, 0)
-				pa.quad_to(0, s * 0.55, -s, 0)
-				pt.fill(xf * pa.subpath(0), PageTones.alpha(a.color, fade * 0.9))
+				pt.fill(xf * Transform2D(Vector2(s, 0), Vector2(0, s), Vector2.ZERO) * _leaf_shape(), PageTones.alpha(a.color, fade * 0.9))
 				pt.stroke(xf * PackedVector2Array([Vector2(-s * 0.8, 0), Vector2(s * 0.8, 0)]), maxf(0.5, 0.6 * dpr), PageTones.alpha(T.ink, fade * 0.5))
 			"fireflies":
 				var blink := 0.5 + 0.5 * sin(now * (1.5 + (a.seed % 7) * 0.2) + a.seed)
@@ -374,6 +369,23 @@ func ambient(pt: PagePainter, dt: float, cam_x: float, cam_y: float, ppu: float,
 					var ox := sin(a.seed + l * 2.1) * a.size * 4.0
 					var oy := cos(a.seed * 0.7 + l) * a.size * 0.5
 					pt.ellipse_dot(a.x + ox, a.y + oy, a.size * (7.0 - l * 1.2), a.size * (1.1 - l * 0.15), PageTones.alpha(a.color, fade * 0.07))
+
+
+## A unit almond (two quadratic arcs from (-1, 0) to (1, 0) through (0, -0.55) and
+## (0, 0.55)), made once.
+static var _leaf: PackedVector2Array
+
+
+static func _leaf_shape() -> PackedVector2Array:
+	if _leaf.is_empty():
+		var pa := PagePath.new()
+		pa.seg_px = 0.25
+		pa.move_to(-1, 0)
+		pa.quad_to(0, -0.55, 1, 0)
+		pa.quad_to(0, 0.55, -1, 0)
+		_leaf = pa.subpath(0)
+		_leaf.resize(_leaf.size() - 1)
+	return _leaf
 
 
 func _spawn(kind: String, W: float, H: float, dpr: float, anywhere: bool) -> Amb:

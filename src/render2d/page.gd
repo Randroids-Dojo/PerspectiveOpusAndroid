@@ -92,10 +92,15 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	if _chunks != null:
+		_chunks.dispose()
 	if _pt != null:
 		_pt.free_items()
 	if _opt != null:
 		_opt.free_items()
+	if _env != null:
+		_env.cache.clear()
+	PagePainter.release_shared()
 
 
 # ---------------------------------------------------------------- the renderer contract
@@ -361,9 +366,7 @@ func _make_patterns() -> void:
 	_pats_dpr = _dpr
 
 
-func _paint_chunk(pt: PagePainter, i: int, j: int, variant: int) -> void:
-	if _env == null:
-		return
+func _paint_chunk(pt: PagePainter, i: int, j: int, variant: int) -> PageTerrain.Job:
 	var k := _chunk_k
 	var p := PageEnv.Proj.new()
 	p.k = k
@@ -376,8 +379,7 @@ func _paint_chunk(pt: PagePainter, i: int, j: int, variant: int) -> void:
 	var x1 := float((i + 1) * CHUNK) / k
 	var y0 := -float((j + 1) * CHUNK) / k
 	var y1 := -float(j * CHUNK) / k
-	PageTerrain.paint_static(pt, _env, p, x0, y0, x1, y1, variant)
-	PageTerrain.granulate(pt, _env, p, CHUNK, CHUNK)
+	return PageTerrain.begin_job(pt, _env, p, x0, y0, x1, y1, variant, CHUNK)
 
 
 func _probe_chunk(i: int, j: int) -> bool:
@@ -424,6 +426,10 @@ func _redraw_decor(d: PageEntities.Drawable, p: PageEnv.Proj, variant: int, lim:
 	pen.p.px = _chunk_px
 	pen.p.boil = variant
 	pen.variant = variant
+	# Each thorn and decor drawing is recorded once per boil drawing (in world pixels) and
+	# replayed, since it is redrawn every frame something stands behind it.
+	var lp := pen.p.local(0, 0)
+	var at := Transform2D(0.0, Vector2(p.ox, p.oy))
 	for z in range(world.d - 1, -1, -1):
 		if z + 1 > lim:
 			continue
@@ -432,10 +438,27 @@ func _redraw_decor(d: PageEntities.Drawable, p: PageEnv.Proj, variant: int, lim:
 		var th: PackedInt32Array = world.thorns[z]
 		for i in range(0, th.size(), 2):
 			if th[i] + 1 > d.x0 and th[i] < d.x1 and th[i + 1] + 1 > d.y0 and th[i + 1] < d.y1:
-				PageTerrain.draw_thorn(pen, th[i], th[i + 1])
+				var key := "T%d.%d.%d.%d" % [th[i], th[i + 1], z, variant]
+				var rec: Variant = _env.cache.lookup(key)
+				if rec == null:
+					_pt.begin_record()
+					var saved := pen.p
+					pen.p = lp
+					PageTerrain.draw_thorn(pen, th[i], th[i + 1])
+					pen.p = saved
+					rec = _pt.end_record()
+					_env.cache.store(key, rec)
+				_pt.replay(rec, at)
 		for di in decor:
 			if di.z == z:
-				PageDecor.draw(_pt, _env, pen.p, di, variant, PageDecor.STATIC)
+				var key := "D%d.%d" % [di.get_instance_id(), variant]
+				var rec: Variant = _env.cache.lookup(key)
+				if rec == null:
+					_pt.begin_record()
+					PageDecor.draw(_pt, _env, lp, di, variant, PageDecor.STATIC)
+					rec = _pt.end_record()
+					_env.cache.store(key, rec)
+				_pt.replay(rec, at)
 
 
 ## Redraws whatever static scenery stands in front of a live thing: decor and thorns

@@ -16,6 +16,9 @@ class Pen:
 	var variant := 0
 	var L: PageTones.Layer
 	var z := 0
+	## The pixel rectangle being painted (with a margin); long strokes are only built
+	## inside it. Empty means everything.
+	var window := Rect2()
 
 
 class MarkSet:
@@ -34,64 +37,135 @@ static func _capped(m: int) -> bool:
 	return CAPPED.has(m)
 
 
-## `use_mul` lets the cast shadows multiply what is already painted (the chunk painter
-## passes true; occlusion fix-ups never draw shadows).
-static func paint_static(painter: PagePainter, env: PageEnv, p: PageEnv.Proj, wx0: float, wy0: float, wx1: float, wy1: float, variant: int) -> void:
+## A chunk painting in progress: one depth layer per step, back to front, then the
+## granulation, so the chunk cache can spread the work over frames.
+class Job:
+	var painter: PagePainter
+	var env: PageEnv
+	var p: PageEnv.Proj
+	var wx0: float
+	var wy0: float
+	var wx1: float
+	var wy1: float
+	var rx0: float
+	var ry0: float
+	var rx1: float
+	var ry1: float
+	var size := 0.0
+	var pen: Pen
+	var buckets: Array = []
+	## Next layer to paint; -1 means granulate next, -2 means done.
+	var z := 0
+	## Phase within the layer (washes and marks, top edging, outlines, thorns and decor).
+	var phase := 0
+	var runs: Array = []
+
+
+static func begin_job(painter: PagePainter, env: PageEnv, p: PageEnv.Proj, wx0: float, wy0: float, wx1: float, wy1: float, variant: int, size: float) -> Job:
 	var W := env.world
+	var job := Job.new()
+	job.painter = painter
+	job.env = env
+	job.p = p
+	job.wx0 = wx0
+	job.wy0 = wy0
+	job.wx1 = wx1
+	job.wy1 = wy1
+	job.size = size
 	var cx0 := maxi(0, floori(wx0) - 1)
 	var cx1 := mini(W.w - 1, ceili(wx1))
 	var cy0 := maxi(0, floori(wy0) - 1)
 	var cy1 := mini(W.h - 1, ceili(wy1))
-	var buckets: Array = []
 	for z in W.d:
-		buckets.append(PackedInt32Array())
+		job.buckets.append(PackedInt32Array())
 	for y in range(cy0, cy1 + 1):
 		for x in range(cx0, cx1 + 1):
 			var f := W.front[x + W.w * y]
 			if f != Level.NO_DEPTH:
-				var b: PackedInt32Array = buckets[f]
+				var b: PackedInt32Array = job.buckets[f]
 				b.append(x)
 				b.append(y)
-				buckets[f] = b
+				job.buckets[f] = b
 	var m := 0.6
-	var rx0 := wx0 - m
-	var rx1 := wx1 + m
-	var ry0 := wy0 - m
-	var ry1 := wy1 + m
+	job.rx0 = wx0 - m
+	job.rx1 = wx1 + m
+	job.ry0 = wy0 - m
+	job.ry1 = wy1 + m
 	var pen := Pen.new()
 	pen.painter = painter
 	pen.env = env
 	pen.p = p
 	pen.variant = variant
+	pen.window = Rect2(p.ox + wx0 * p.k, p.oy - wy1 * p.k, (wx1 - wx0) * p.k, (wy1 - wy0) * p.k).grow(p.k * 0.8)
+	job.pen = pen
+	job.z = W.d - 1
 	painter.use(PagePainter.NORMAL)
-	for z in range(W.d - 1, -1, -1):
-		pen.L = env.tones.layers[z]
-		pen.z = z
-		var cells: PackedInt32Array = buckets[z]
-		var runs: Array = []
+	return job
+
+
+## Paints the next layer (or the granulation). Returns true when the chunk is finished.
+static func step_job(job: Job) -> bool:
+	if job.z == -2:
+		return true
+	if job.z == -1:
+		if job.size > 0.0:
+			granulate(job.painter, job.env, job.p, job.size, job.size)
+		job.z = -2
+		return true
+	_paint_phase(job, job.z, job.phase)
+	job.phase += 1
+	if job.phase == 4:
+		job.phase = 0
+		job.z -= 1
+	return false
+
+
+static func _paint_phase(job: Job, z: int, phase: int) -> void:
+	var env := job.env
+	var W := env.world
+	var pen := job.pen
+	var painter := job.painter
+	var p := job.p
+	pen.L = env.tones.layers[z]
+	pen.z = z
+	if phase == 0:
+		var cells: PackedInt32Array = job.buckets[z]
+		job.runs = []
 		for r in W.edges[z]:
-			if r.x1 >= rx0 and r.x0 <= rx1 and r.y1 >= ry0 and r.y0 <= ry1:
-				runs.append(r)
+			if r.x1 >= job.rx0 and r.x0 <= job.rx1 and r.y1 >= job.ry0 and r.y0 <= job.ry1:
+				job.runs.append(r)
 		if not cells.is_empty():
 			if z < W.d - 1:
 				_cast_shadow(pen, cells)
 			_fill_cells(pen, cells)
 			_marks(pen, cells)
-			_volume(pen, runs)
-		_seams(pen, rx0, ry0, rx1, ry1)
-		_top_caps(pen, runs)
-		_outlines(pen, runs)
-		var th: PackedInt32Array = W.thorns[z]
-		for i in range(0, th.size(), 2):
-			var tx := th[i]
-			var ty := th[i + 1]
-			if tx + 1 < rx0 or tx > rx1 or ty + 1 < ry0 or ty > ry1:
-				continue
-			draw_thorn(pen, tx, ty)
-		for di in W.decor_by_layer[z]:
-			if di.x1 < wx0 or di.x0 > wx1 or di.y1 < wy0 or di.y0 > wy1:
-				continue
-			PageDecor.draw(painter, env, p, di, variant, PageDecor.STATIC)
+			_volume(pen, job.runs)
+		_seams(pen, job.rx0, job.ry0, job.rx1, job.ry1)
+		return
+	if phase == 1:
+		_top_caps(pen, job.runs)
+		return
+	if phase == 2:
+		_outlines(pen, job.runs)
+		return
+	var th: PackedInt32Array = W.thorns[z]
+	for i in range(0, th.size(), 2):
+		var tx := th[i]
+		var ty := th[i + 1]
+		if tx + 1 < job.rx0 or tx > job.rx1 or ty + 1 < job.ry0 or ty > job.ry1:
+			continue
+		draw_thorn(pen, tx, ty)
+	for di in W.decor_by_layer[z]:
+		if di.x1 < job.wx0 or di.x0 > job.wx1 or di.y1 < job.wy0 or di.y0 > job.wy1:
+			continue
+		PageDecor.draw(painter, env, p, di, pen.variant, PageDecor.STATIC)
+
+
+## Paints everything static in a world rectangle at once.
+static func paint_static(painter: PagePainter, env: PageEnv, p: PageEnv.Proj, wx0: float, wy0: float, wx1: float, wy1: float, variant: int) -> void:
+	var job := begin_job(painter, env, p, wx0, wy0, wx1, wy1, variant, 0.0)
+	while not step_job(job):
+		pass
 
 
 ## Granulation over the whole chunk so the ink sits in the paper (source-atop the wash).
@@ -539,7 +613,7 @@ static func _seams(pen: Pen, rx0: float, ry0: float, rx1: float, ry1: float) -> 
 		if x1 < rx0 or x0 > rx1 or y1 < ry0 or y0 > ry1:
 			continue
 		var pts := PageInk.line_pts(p.ox + x0 * p.k, p.oy - y0 * p.k, p.ox + x1 * p.k, p.oy - y1 * p.k, 0.6 * p.px, x0 * 131 + y0 * 71 + pen.z, pen.variant, 6.0 * p.px, 0.0, 0.6, p.px)
-		pen.painter.ribbon(pts, L.outline_w * 0.55 * p.px, x0 * 17 + y0, c)
+		pen.painter.ribbon(pts, L.outline_w * 0.55 * p.px, x0 * 17 + y0, c, 0.5, pen.window)
 
 
 static func _outlines(pen: Pen, runs: Array) -> void:
@@ -553,7 +627,7 @@ static func _outlines(pen: Pen, runs: Array) -> void:
 	for r in runs:
 		var length := maxi(r.x1 - r.x0, r.y1 - r.y0) * p.k
 		var pts := PageInk.line_pts(p.ox + r.x0 * p.k, p.oy - r.y0 * p.k, p.ox + r.x1 * p.k, p.oy - r.y1 * p.k, amp * (1.25 if length > 300.0 else 1.0), r.seed, pen.variant, 6.0 * p.px, 2.4 * p.px, 0.6, p.px)
-		pen.painter.ribbon(pts, w, r.seed, c)
+		pen.painter.ribbon(pts, w, r.seed, c, 0.5, pen.window)
 
 
 # ---------------------------------------------------------------- top edging
