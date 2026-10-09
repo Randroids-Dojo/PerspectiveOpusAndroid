@@ -1,0 +1,44 @@
+{
+  "checked_at_utc": "2026-10-09T08:00:49.195331+00:00",
+  "state": "prepared_console_handoff_required",
+  "console_updates_applied_in_this_attempt": false,
+  "review_submitted": false,
+  "blocker": "T3 Console navigation succeeds but snapshot and DOM evaluation time out after 15000 ms, including a fresh tab.",
+  "prepared_bundle": {
+    "version": "1.1.0",
+    "version_code": 2,
+    "package": "app.toyboxes.perspectiveopus",
+    "source_commit": "a10e18f71a71df50485538d02cf1461d376923db",
+    "sha256": "d2359a7d6fc700f1fd89fc4b273a6b03a7396f7e824b95efad7e506b688ab86a"
+  },
+  "requested_price": {
+    "type": "paid",
+    "currency": "USD",
+    "amount": "1.99",
+    "console_save_verified": false
+  },
+  "prepared_target_audience": [
+    "6-8",
+    "9-12",
+    "13-15",
+    "16-17",
+    "18+"
+  ],
+  "release_endpoint": "Production review; optional internal validation first.",
+  "screenshots": {
+    "count": 4,
+    "size": [
+      1920,
+      1080
+    ],
+    "format": "RGB PNG",
+    "provenance": "Unedited native Godot 4.6 Mobile-renderer captures on macOS with touch UI; not physical Pixel captures.",
+    "receipt": "docs/store/screenshots.json"
+  },
+  "kit": {
+    "path": "build/PerspectiveOpus-1.1.0-code2-play-release.zip",
+    "bytes": 103252453,
+    "sha256": "420955553baca9f8abb1f73e5a4403e44c26d9a92a4375cf0a60dca8892e592d"
+  },
+  "handoff": "docs/PLAY_RELEASE_HANDOFF.md"
+}

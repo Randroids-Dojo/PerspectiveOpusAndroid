@@ -1,0 +1,56 @@
+{
+  "screenshots": [
+    {
+      "file": "phone-01-overture-stage.png",
+      "width": 1920,
+      "height": 1080,
+      "format": "24-bit RGB PNG",
+      "sha256": "579f965135e75e87bb331431c9c62db838973b25ceac7165aeaa7b726f93c174",
+      "level": "overture",
+      "world": "3d",
+      "alt_text": "Quaver beside a brass metronome on the Stage, a sunlit 3D meadow with stone ledges.",
+      "source_commit": "a10e18f71a71df50485538d02cf1461d376923db",
+      "capture": "Native Godot 4.6 game running the Mobile renderer on macOS with touch UI; not a physical phone capture.",
+      "visually_inspected": true
+    },
+    {
+      "file": "phone-02-overture-score.png",
+      "width": 1920,
+      "height": 1080,
+      "format": "24-bit RGB PNG",
+      "sha256": "45099ed1021014d06c873db566b9d34730ce24c0a17f519399c2a2f567a576f5",
+      "level": "overture",
+      "world": "2d",
+      "alt_text": "The same meadow on the Score, drawn on parchment with inked platforms and golden notes.",
+      "source_commit": "a10e18f71a71df50485538d02cf1461d376923db",
+      "capture": "Native Godot 4.6 game running the Mobile renderer on macOS with touch UI; not a physical phone capture.",
+      "visually_inspected": true
+    },
+    {
+      "file": "phone-03-nocturne-score.png",
+      "width": 1920,
+      "height": 1080,
+      "format": "24-bit RGB PNG",
+      "sha256": "077cd249ecc55bcb60d3eec4157c1f6d2604cda637577c0cb2ecc209ced0a9d2",
+      "level": "nocturne",
+      "world": "2d",
+      "alt_text": "The moonlit Nocturne Score with silver ink, crystal columns and notes to restore.",
+      "source_commit": "a10e18f71a71df50485538d02cf1461d376923db",
+      "capture": "Native Godot 4.6 game running the Mobile renderer on macOS with touch UI; not a physical phone capture.",
+      "visually_inspected": true
+    },
+    {
+      "file": "phone-04-finale-stage.png",
+      "width": 1920,
+      "height": 1080,
+      "format": "24-bit RGB PNG",
+      "sha256": "fb030a6a2b0d00306d1a3c149f329647808d06e9dd16bf9d33a7d2b18100e2da",
+      "level": "finale",
+      "world": "3d",
+      "alt_text": "Quaver in the Finale concert hall on the Stage, with velvet curtains and marble platforms.",
+      "source_commit": "a10e18f71a71df50485538d02cf1461d376923db",
+      "capture": "Native Godot 4.6 game running the Mobile renderer on macOS with touch UI; not a physical phone capture.",
+      "visually_inspected": true
+    }
+  ]
+}
