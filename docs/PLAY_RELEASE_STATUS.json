@@ -40,5 +40,6 @@
     "bytes": 103252453,
     "sha256": "420955553baca9f8abb1f73e5a4403e44c26d9a92a4375cf0a60dca8892e592d"
   },
-  "handoff": "docs/PLAY_RELEASE_HANDOFF.md"
+  "handoff": "docs/PLAY_RELEASE_HANDOFF.md",
+  "static_package_layout_receipt": "docs/qa/android-package-layout-2026-10-09.json"
 }

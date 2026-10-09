@@ -1,0 +1,44 @@
+{
+  "checked_on": "2026-10-09",
+  "artifact": "build/PerspectiveOpus.aab",
+  "sha256": "d2359a7d6fc700f1fd89fc4b273a6b03a7396f7e824b95efad7e506b688ab86a",
+  "source_commit": "a10e18f71a71df50485538d02cf1461d376923db",
+  "scope": "Static ELF layout checks, not a runtime test on a 16 KB device.",
+  "libraries": [
+    {
+      "path": "base/lib/arm64-v8a/libc++_shared.so",
+      "sha256": "ad74bf43eb1fd576518168f664ad16a74e00eeda9595875c33dd87f6dd197869",
+      "all_load_segments_aligned_to_16384": true,
+      "all_load_offsets_congruent_to_virtual_addresses_modulo_16384": true,
+      "relro_start": "0x12f898",
+      "relro_end": "0x13a000",
+      "protected_start_at_16384_page_size": "0x12c000",
+      "protected_end_at_16384_page_size": "0x13c000",
+      "next_mutable_load_start": "0x13d430",
+      "protected_range_overlaps_mutable_load_data": false
+    },
+    {
+      "path": "base/lib/arm64-v8a/libgodot_android.so",
+      "sha256": "e377f994b4ce92205c4d9d96e9e6ba7b771bbd84aa152cf4f36882cf64e95819",
+      "all_load_segments_aligned_to_16384": true,
+      "all_load_offsets_congruent_to_virtual_addresses_modulo_16384": true,
+      "relro_start": "0x409b3d0",
+      "relro_end": "0x4203000",
+      "protected_start_at_16384_page_size": "0x4098000",
+      "protected_end_at_16384_page_size": "0x4204000",
+      "next_mutable_load_start": "0x42065b8",
+      "protected_range_overlaps_mutable_load_data": false
+    }
+  ],
+  "initial_warning": "An additional assertion required the raw GNU_RELRO end to be divisible by 16384. Both raw ends failed that assertion.",
+  "resolution": "That assertion alone was too strict for these layouts. The Android linker rounds RELRO protection to page boundaries. In both libraries the RELRO covers its entire writable load, and the next mutable load begins beyond the protected range. The inferred writable-data protection failure was not substantiated.",
+  "loader_reference": "https://android.googlesource.com/platform/bionic/+/master/linker/linker_phdr.cpp",
+  "loader_functions_reviewed": [
+    "_extend_load_segment_vma",
+    "_extend_gnu_relro_prot_end",
+    "_phdr_table_set_gnu_relro_prot"
+  ],
+  "binary_changed": false,
+  "play_bundle_processing_verified": false,
+  "runtime_on_16384_page_size_device_verified": false
+}
