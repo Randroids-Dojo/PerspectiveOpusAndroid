@@ -1,6 +1,6 @@
 # Polish verification
 
-Checked on 8 October 2026 for version 1.1.0, Android version code 2.
+Checked on 8 and 9 October 2026 for version 1.1.0, Android version code 2.
 
 The native game now draws the web build's illuminated Score and lit Stage, including every movement palette, prop, entity and ink wipe. Generated textures, Stage meshes and music come from the web build's own generators. A thin gold landing cue follows the surface below Quaver in either world, including moving stands and drums. The Stage's frustum camera preserves the side view's scale during a switch.
 
@@ -17,6 +17,8 @@ Music uses synchronized Score and Stage arrangements, restored-note layers, equa
 | Simulation parity | All six web recordings finish with seven notes and zero deaths; maximum position drift below 3e-14 |
 | Native input and UI flow | 42 checks pass, including focus recovery, independent touch contacts, held triggers, pause/back and pickup persistence |
 | Pixel 8 Pro exported flow | 42 checks pass at normal speed on Android 17, Vulkan 1.4.343, Mali-G715 and Forward Mobile |
+| Pixel 8 Pro updated renderer | All 42 flow checks pass after terrain preparation; regular release touch switches and Android back handling inspected |
+| Pixel 8 Pro playback capture | 34.752 seconds of 48 kHz stereo playback; no silent seconds or full-scale clipped samples |
 | Pixel 8 Pro full campaign | 25 checks pass at normal speed; six movements, 42 saved notes, zero deaths, 21 switches, ending and return to title |
 | Native full campaign | 25 checks pass; six movements, 42 saved notes, zero deaths, ending and return to title |
 | Native shutdown | Flow, campaign and windowed screenshot exit without script errors or leaked resources |
@@ -44,13 +46,17 @@ The Pixel 8 Pro connected through wireless ADB and ran the exported self-test on
 
 The exported full campaign then passed all 25 checks on the same phone at normal speed, with all 42 notes saved, zero deaths and 21 world switches. It reached the ending, credits and title. The captured process log contains no script errors, fatal exceptions or shutdown warnings. The preserved JSON receipt is [the Pixel campaign report](qa/pixel-8-pro-2026-10-08.json).
 
-The signed regular release was installed in the primary profile and its title inspected at 2244x1008. An OS-level Begin tap also reached playable Overture. A PiP video was present during this release check, and YouTube subsequently became the foreground. The input guard stopped further commands. Screenshots containing that overlay and the earlier interrupted playback recording were discarded. OS-level world switching/back and game-only playback capture remain pending.
+The first signed-release check reached playable Overture through an OS-level Begin tap. A PiP video was present, and YouTube subsequently became the foreground. The input guard stopped further commands. Screenshots containing that overlay and the interrupted playback recording were discarded.
+
+On 9 October, the updated self-test passed all 42 flow checks on the Pixel at normal speed, with no script errors, fatal exceptions or shutdown leaks. The rebuilt regular release was then installed in the primary profile. OS-level taps switched from Stage to Score and back; both complete worlds and their HUDs were inspected at 2244x1008. Android back opened the pause menu, an edge back gesture resumed gameplay, and the touch pause button left the game paused. Initial switch taps used stale coordinates and missed the button; the successful taps used the observed screenshot dimensions and control center. Foreground and PiP guards remained clear throughout the successful checks. The preserved receipt is [the updated Pixel flow and touch report](qa/pixel-8-pro-2026-10-09.json).
+
+The playback recording contains 34.752 seconds of Stage gameplay and pause/resume, captured from Android playback with no microphone or video recording. It is 48 kHz stereo PCM, peaks at -6.69 dBFS and contains no full-scale clipped samples or completely silent seconds. The capture finished before the later successful world-switch taps, so it does not verify their audio crossfade. Physical speaker listening and actual touch-to-sound latency remain unverified. The recording, inspected screenshots, flow log and report are preserved under `build/qa/pixel-8-pro-2026-10-09/`, with SHA-256 hashes in the receipt.
 
 The campaign collected 28 frame groups at medium quality, with the automatic detail tier disabled and the Stage resolution governor active. Gameplay averages, including transition and level-load outliers, were 52.1 fps on the Stage and 52.4 fps on the Score. The ink-wipe portions averaged 29.4 fps; Page CPU cost peaked at 237.6 ms during a switch. Level-load frames reached 1.0 second. These results do not establish a steady 60 fps result. Video activity during the campaign was not recorded, so this is a device-session measurement rather than an isolated performance benchmark. No screenshots or screen recordings ran during the campaign.
 
 The native audio driver delivered 15,758,694 frames before clean shutdown. Audio diagnostics reported zero dropped sounds and 52 trimmed old tails across 2,531 effects. Physical speaker listening and actual touch-to-sound latency remain unverified; the engine's zero-valued output-latency field is not a measurement of zero hardware latency.
 
-The first-use Score hitch led to a renderer change: paint its initial terrain during level preparation, then spend a small background budget maintaining the visible terrain and neighbouring chunks while on the Stage. Chunk geometry is released only after a render-frame completion signal, so preparation cannot clear a drawing before the GPU has seen it. Day and night switch screenshots show the complete cached terrain, and the updated local flow and full campaign checks pass. The timing improvement from this change still needs a new phone run.
+The first-use Score hitch led to a renderer change: paint its initial terrain during level preparation, then spend a small background budget maintaining the visible terrain and neighbouring chunks while on the Stage. Chunk geometry is released only after a render-frame completion signal, so preparation cannot clear a drawing before the GPU has seen it. Day and night switch screenshots show the complete cached terrain, and the updated local flow and full campaign checks pass. The updated phone flow also passes. Its 20 Overture wipe frames peak at 48.7 ms, with Page CPU cost peaking at 16.4 ms and no frame above 50 ms in that group. This short flow is not a matched full-campaign comparison; timing across all six movements still needs a longer phone run.
 
 Desktop performance measurements are not phone estimates. The Stage and page both use quality scaling.
 
@@ -69,6 +75,7 @@ Wireless evidence:
 - `/tmp/opus-prewarm-rendered-campaign.log`
 - `/tmp/opus-prewarm-switch.png`
 - `/tmp/opus-prewarm-nocturne.png`
+- `build/qa/pixel-8-pro-2026-10-09/`
 
 The Android emulator launched the exported Mobile renderer but hung at a Vulkan `QueuePresentKHR` failure before the title or flow checks. Both software Vulkan and MoltenVK were tried. A related Godot emulator issue is recorded at https://github.com/godotengine/godot/issues/105598. The test package was removed, the temporary storage threshold restored, and the emulator stopped. The production build keeps the required Mobile renderer.
 

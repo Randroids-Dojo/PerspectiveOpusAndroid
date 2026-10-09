@@ -1,0 +1,242 @@
+{
+  "date": "2026-10-09",
+  "device": "Pixel 8 Pro",
+  "android_version": "17",
+  "source_commit": "a10e18f71a71df50485538d02cf1461d376923db",
+  "test_apk_sha256": "228115fc5ab4f64ced1f4dadc8e762ba02afd9309b656ad38da51e2c8fc413b7",
+  "release_apk_sha256": "3cd67510da67f88239cafa96a5f4f19d2489f5c3fb52fed6d50e0a63802a391d",
+  "conditions": {
+    "connection": "wireless ADB",
+    "profile": "primary user",
+    "video": "Video playback was requested closed. No PiP or foreground conflicts were observed during the successful checks.",
+    "capture_during_flow": false,
+    "screen_capture_during_release_touch_check": true,
+    "capture_scope": "Android playback, no microphone or video capture; recording contains Stage gameplay and pause/resume, before the later successful world-switch taps."
+  },
+  "report": {
+    "adapter": "Mali-G715",
+    "audio": {
+      "ambience": "lake",
+      "beat": 1.28632239192123,
+      "blend": 1.0,
+      "dropped": 0,
+      "fading_songs": 1,
+      "harmony": "I",
+      "loaded_files": 674,
+      "loading": "",
+      "loading_files": 0,
+      "mix_rate": 44100.0,
+      "output_latency": 0.0,
+      "played": 146,
+      "queued": 0,
+      "restored": 0,
+      "song": "adagio",
+      "stolen": 12,
+      "voices": 21
+    },
+    "display": "Android",
+    "fails": 0,
+    "frames": {
+      "adagio/play/3d/medium": {
+        "fps": 35.5144148427342,
+        "frames": 62,
+        "max_ms": 582.193,
+        "over_50_ms": 1,
+        "p50_ms": 18.43,
+        "p95_ms": 33.696,
+        "page_avg_ms": 0.0,
+        "page_max_ms": 0.0,
+        "stage_scale_min": 1.0
+      },
+      "overture/complete/3d/medium": {
+        "fps": 48.1119328194327,
+        "frames": 59,
+        "max_ms": 48.155,
+        "over_50_ms": 0,
+        "p50_ms": 19.507,
+        "p95_ms": 39.51,
+        "page_avg_ms": 0.0,
+        "page_max_ms": 0.0,
+        "stage_scale_min": 1.0
+      },
+      "overture/pause/3d/medium": {
+        "fps": 52.5767100084476,
+        "frames": 134,
+        "max_ms": 48.52,
+        "over_50_ms": 0,
+        "p50_ms": 17.026,
+        "p95_ms": 34.597,
+        "page_avg_ms": 0.0,
+        "page_max_ms": 0.0,
+        "stage_scale_min": 1.0
+      },
+      "overture/play/2d/medium": {
+        "fps": 50.3419657818467,
+        "frames": 56,
+        "max_ms": 51.196,
+        "over_50_ms": 1,
+        "p50_ms": 17.551,
+        "p95_ms": 40.7,
+        "page_avg_ms": 4.086875,
+        "page_max_ms": 35.262,
+        "stage_scale_min": 1.0
+      },
+      "overture/play/3d/medium": {
+        "fps": 52.1384136673178,
+        "frames": 547,
+        "max_ms": 695.75,
+        "over_50_ms": 2,
+        "p50_ms": 16.954,
+        "p95_ms": 29.4,
+        "page_avg_ms": 0.0,
+        "page_max_ms": 0.0,
+        "stage_scale_min": 1.0
+      },
+      "overture/play/switch/medium": {
+        "fps": 34.6594621198074,
+        "frames": 20,
+        "max_ms": 48.725,
+        "over_50_ms": 0,
+        "p50_ms": 28.652,
+        "p95_ms": 48.725,
+        "page_avg_ms": 11.06045,
+        "page_max_ms": 16.368,
+        "stage_scale_min": 1.0
+      },
+      "title/title/3d/medium": {
+        "fps": 54.6755654704028,
+        "frames": 282,
+        "max_ms": 200.638,
+        "over_50_ms": 5,
+        "p50_ms": 16.91,
+        "p95_ms": 24.75,
+        "page_avg_ms": 0.0,
+        "page_max_ms": 0.0,
+        "stage_scale_min": 1.0
+      }
+    },
+    "mode": "flow",
+    "passes": 42,
+    "renderer": "mobile",
+    "speed": 1.0,
+    "window": [
+      2244,
+      1008
+    ]
+  },
+  "release_input": {
+    "path": "OS-level adb shell input on the signed regular release, separate from engine-injected flow events",
+    "viewport": [
+      2244,
+      1008
+    ],
+    "begin": "passed",
+    "switch_stage_to_score": "passed, complete Score terrain inspected",
+    "switch_score_to_stage": "passed, Stage and HUD inspected",
+    "android_back_key": "passed, opens pause menu",
+    "android_edge_back_gesture": "passed, resumes gameplay from pause",
+    "pause_button": "passed, final screen inspected paused",
+    "touch_switch_position": [
+      1668,
+      778
+    ],
+    "pause_position": [
+      2034,
+      93
+    ],
+    "state": "Overture, zero collected notes, paused",
+    "method_note": "Initial switch taps used stale coordinates and missed the button. Successful taps used the observed screenshot dimensions and control center."
+  },
+  "playback": {
+    "sha256": "873516f607ca6b4023fc74c175b967fff994b14920cdfc7aba2fcb9641dccbae",
+    "duration_seconds": 34.752,
+    "sample_rate": 48000,
+    "channels": 2,
+    "sample_width_bytes": 2,
+    "frames": 1668096,
+    "peak_dbfs": -6.686997104633391,
+    "rms_dbfs": -31.978969574152302,
+    "clipped_samples": 0
+  },
+  "evidence": [
+    {
+      "path": "build/qa/pixel-8-pro-2026-10-09/flow.log",
+      "bytes": 5808,
+      "sha256": "830ab787fb60b1630000df631b4b391aedc938a3b1248522652060911081b30b",
+      "captured_utc": "2026-10-09T06:32:02.370034+00:00"
+    },
+    {
+      "path": "build/qa/pixel-8-pro-2026-10-09/flow-report.json",
+      "bytes": 2466,
+      "sha256": "0a2df47b9bd5c767c179c60a68551e3765ade86f103c1aa22c423d9c3eb87d8e",
+      "captured_utc": "2026-10-09T06:32:03.676664+00:00"
+    },
+    {
+      "path": "build/qa/pixel-8-pro-2026-10-09/title.png",
+      "bytes": 3474802,
+      "sha256": "2e8e7ed9d2b1034eb07a1349a662c00448098d736b45a7537074d99fd02fcad6",
+      "captured_utc": "2026-10-09T06:32:25.558435+00:00"
+    },
+    {
+      "path": "build/qa/pixel-8-pro-2026-10-09/stage.png",
+      "bytes": 3310186,
+      "sha256": "ca53645b025af4b67dea1187c4973843ebd36d8ce93dbb295b54812ab89cb652",
+      "captured_utc": "2026-10-09T06:32:32.574154+00:00"
+    },
+    {
+      "path": "build/qa/pixel-8-pro-2026-10-09/back-paused.png",
+      "bytes": 1647255,
+      "sha256": "18fef977573d29c3d5aee8a383075753928843fbc8b7b82bf10f6b596b263e77",
+      "captured_utc": "2026-10-09T06:32:42.094649+00:00"
+    },
+    {
+      "path": "build/qa/pixel-8-pro-2026-10-09/edge-back-resumed.png",
+      "bytes": 3283889,
+      "sha256": "81e4eab94f195b23ed9cdfbdd3cff811d320bae2f9b6a65f61d4398b872b20e8",
+      "captured_utc": "2026-10-09T06:32:47.043474+00:00"
+    },
+    {
+      "path": "build/qa/pixel-8-pro-2026-10-09/touch-score.png",
+      "bytes": 2230067,
+      "sha256": "f963674851e90383debed2a1f2328958e7aec5336b6165fd6c02436077178582",
+      "captured_utc": "2026-10-09T06:33:36.869732+00:00"
+    },
+    {
+      "path": "build/qa/pixel-8-pro-2026-10-09/touch-stage.png",
+      "bytes": 3443312,
+      "sha256": "45acbbe50d7ac721ea0c490d2de188c1da5aa0861bae385faa5f0750ff42f191",
+      "captured_utc": "2026-10-09T06:33:45.043173+00:00"
+    },
+    {
+      "path": "build/qa/pixel-8-pro-2026-10-09/left-paused.png",
+      "bytes": 1684225,
+      "sha256": "dd1730246b64aecfb3d74b3a21573a531ca580016bf928656ac1a39be5d68745",
+      "captured_utc": "2026-10-09T06:34:01.210104+00:00"
+    },
+    {
+      "path": "build/qa/pixel-8-pro-2026-10-09/playback.wav",
+      "bytes": 6672496,
+      "sha256": "873516f607ca6b4023fc74c175b967fff994b14920cdfc7aba2fcb9641dccbae",
+      "captured_utc": "2026-10-09T06:33:08.499728+00:00"
+    },
+    {
+      "path": "build/qa/pixel-8-pro-2026-10-09/playback-analysis.json",
+      "bytes": 4300,
+      "sha256": "555ba59832cf8ea4bf1d03838706c333537fadad2719a518563c072af6e5aeb8",
+      "captured_utc": "2026-10-09T06:34:59.865203+00:00"
+    },
+    {
+      "path": "build/qa/pixel-8-pro-2026-10-09/playback-capture.log",
+      "bytes": 561,
+      "sha256": "ae112b4c70f42ed7791dac3103dc300671b75ab33c7ecdc645e7bfc088dc4f91",
+      "captured_utc": "2026-10-09T06:33:09.505685+00:00"
+    }
+  ],
+  "limits": [
+    "This post-change run covers the flow and Overture touch switching, not a new full campaign benchmark.",
+    "The earlier six-movement phone campaign remains evidence for the prior renderer revision.",
+    "Playback metrics verify a non-silent capture and no full-scale clipping; physical speaker listening and touch-to-sound latency are not measured.",
+    "Physical Bluetooth controller behavior is not verified.",
+    "The captured playback does not cover the later successful Score/Stage crossfade."
+  ]
+}
