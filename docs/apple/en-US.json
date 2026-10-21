@@ -1,0 +1,23 @@
+{
+  "state": "prepared; not entered in App Store Connect",
+  "name": "Perspective Opus",
+  "subtitle": "A symphony in two worlds",
+  "keywords": "puzzle,platformer,music,2d,3d,offline,perspective,notes,symphony,adventure",
+  "description": "A little note is lost in a scattered symphony. Help Quaver bring the music back.\n\nSwitch between the hand-inked 2D Score and the 3D Stage at any moment, even in mid-jump. Flatten depth to line up distant platforms, then step into the Stage to walk around an obstacle that blocks the page. Both views share one world.\n\nExplore six musical movements, from a sunrise meadow and misty lake to moonlit gardens, a clocktower organ, and a concert hall. Find 42 lost notes, bounce on timpani, ride music stands, and raise platforms with piano keys.\n\nEach movement has two musical arrangements. Changing perspective blends between them without breaking the rhythm.\n\nPlay offline with touch, keyboard or controller. No account, ads, or in-app purchases. Progress and settings are saved locally.",
+  "supportURL": "https://toyboxes.app/support/",
+  "marketingURL": "https://toyboxes.app/games/perspective-opus/",
+  "privacyPolicyURL": "https://perspective-opus.vercel.app/privacy.html",
+  "requestedUSPrice": "1.99",
+  "primaryCategory": "Games",
+  "gameSubcategory": "Puzzle",
+  "reviewNotes": "No login required. Start from the title and select a movement from the programme. Move with the on-screen stick, jump, and switch between Score and Stage using the touch controls. The game also supports a keyboard or controller. All six movements and their music are bundled for offline play. Pause and settings are available in game. There are no ads, in-app purchases, accounts or server uploads.",
+  "remaining": [
+    "Organization membership and legal developer name",
+    "Signed archive and Apple-device runtime QA",
+    "Verified Apple screenshots",
+    "Age rating questionnaire",
+    "Apple privacy-policy review",
+    "Saved price and app privacy declarations",
+    "TestFlight and App Review"
+  ]
+}
