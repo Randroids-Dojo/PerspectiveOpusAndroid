@@ -68,3 +68,34 @@ Apple organization verification is pending. The legal publisher remains Randroid
 
 Local generated outputs are under `build/ios/`. The App Store text is prepared in
 `docs/apple/en-US.json`; it has not been saved in App Store Connect.
+
+## Simulator build on Apple Silicon
+
+The installed official Godot 4.6 iOS template marks its simulator framework as
+ARM64 and x86_64, but `lipo -info` reports that its `libgodot.a` contains only
+x86_64 objects. An ARM64 simulator link cannot succeed with that archive.
+After `python3 tools/build_ios.py --unsigned` generates the Xcode project, an
+unsigned x86_64 simulator build can be compiled with:
+
+```sh
+xcodebuild -project build/ios/PerspectiveOpus.xcodeproj \
+  -scheme PerspectiveOpus -configuration Release -sdk iphonesimulator \
+  -destination 'generic/platform=iOS Simulator' \
+  -derivedDataPath build/ios/SimulatorIntel \
+  CODE_SIGNING_ALLOWED=NO DEVELOPMENT_TEAM= ARCHS=x86_64 \
+  ONLY_ACTIVE_ARCH=NO build
+```
+
+This command builds the simulator app. Runtime playtesting remains a separate
+check, and Apple Silicon may require Rosetta to run the x86_64 app.
+
+## Verification recorded October 28, 2026
+
+- At source commit `6e854c28a005b08b7ae4e87e492d97cf426b203e`, the
+  unsigned x86_64 iOS Simulator Release build passed with Xcode 27.0. The app
+  identifies as `app.toyboxes.perspectiveopus`, version 1.1.0, build 1.
+- Fresh headless parity passed all six movements with seven notes and zero deaths
+  each; worst numeric drift was 2.84e-14.
+- Local headless input flow passed 42 of 42 checks, and the six-movement campaign
+  replay passed 25 of 25 checks, including all 42 notes and the ending. These
+  were macOS Godot runs, not iOS runtime checks.
