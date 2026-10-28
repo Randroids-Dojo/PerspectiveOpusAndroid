@@ -87,7 +87,11 @@ xcodebuild -project build/ios/PerspectiveOpus.xcodeproj \
 ```
 
 This command builds the simulator app. Runtime playtesting remains a separate
-check, and Apple Silicon may require Rosetta to run the x86_64 app.
+check. On this Mac, the installed iOS 26.0 simulator runtime is ARM64 only and
+rejects this x86_64 app. The installed iOS 18.6 runtime supports x86_64, but its
+x86_64 boot did not complete reliably during the October 28 check. Use an
+exact-version Godot ARM64 simulator template or a physical iPhone and iPad for
+runtime validation and genuine store screenshots.
 
 ## Verification recorded October 28, 2026
 
@@ -99,3 +103,6 @@ check, and Apple Silicon may require Rosetta to run the x86_64 app.
 - Local headless input flow passed 42 of 42 checks, and the six-movement campaign
   replay passed 25 of 25 checks, including all 42 notes and the ending. These
   were macOS Godot runs, not iOS runtime checks.
+- The iOS 18.6 iPhone 16 Pro simulator reported x86_64 after boot, but
+  SpringBoard and backboardd exited and app installation did not complete.
+  There is no verified Apple simulator gameplay or screenshot from this run.
